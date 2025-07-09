@@ -37,11 +37,25 @@ function Test-ControlBook {
     # Process each control
     foreach ($control in $controls) {
         $controlProperties = $properties | Where-Object { $_.ControlID -eq $control.ControlID }
-        
+        $controlMaturity = $null
+        if ($control.PSObject.Properties["MaturityLevel"]) {
+            $controlMaturity = $control.MaturityLevel
+        } elseif ($control.PSObject.Properties["Maturity Level"]) {
+            $controlMaturity = $control."Maturity Level"
+        }
         foreach ($property in $controlProperties) {
             Write-Host "Evaluating $($control.ControlID) - $($property.Properties)"
-            
+            $propertyMaturity = $null
+            if ($property.PSObject.Properties["MaturityLevel"]) { $propertyMaturity = $property.MaturityLevel }
             $result = Test-ControlProperty -Control $control -Property $property -OptimizedReport $optimizedReport -PublishedLabels $publishedLabels -AllLabels $allLabels -ConfigurationName $ConfigurationName
+            # Always set MaturityLevel in result, prefer property, then control
+            if ($propertyMaturity) {
+                $result.MaturityLevel = $propertyMaturity
+            } elseif ($controlMaturity) {
+                $result.MaturityLevel = $controlMaturity
+            } else {
+                $result.MaturityLevel = ''
+            }
             $results += $result
         }
     }
@@ -102,6 +116,16 @@ function Get-PublishedLabels {
 function Test-ControlProperty {
     param($Control, $Property, $OptimizedReport, $PublishedLabels, $AllLabels, $ConfigurationName)
     
+    $maturityLevel = $null
+    if ($Control.PSObject.Properties["MaturityLevel"]) {
+        $maturityLevel = $Control.MaturityLevel
+    } elseif ($Control.PSObject.Properties["Maturity Level"]) {
+        $maturityLevel = $Control."Maturity Level"
+    } elseif ($Property.PSObject.Properties["MaturityLevel"]) {
+        $maturityLevel = $Property.MaturityLevel
+    } elseif ($Property.PSObject.Properties["Maturity Level"]) {
+        $maturityLevel = $Property."Maturity Level"
+    }
     $result = [PSCustomObject]@{
         Capability = $Control.Capability
         ControlID = $Control.ControlID
@@ -109,6 +133,7 @@ function Test-ControlProperty {
         Properties = $Property.Properties
         DefaultValue = $Property.DefaultValue
         MustConfigure = $Property.MustConfigure
+        MaturityLevel = $maturityLevel
         Pass = $false
         Comments = ""
         ConfigurationName = $ConfigurationName

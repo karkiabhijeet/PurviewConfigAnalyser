@@ -22,19 +22,35 @@ function Show-PurviewConfigAnalyserGUI {
     }
     $form = New-Object Windows.Forms.Form
     $form.Text = "Custom Configuration Creator"
-    $form.Size = New-Object Drawing.Size(900, 650)
+    $form.Size = New-Object Drawing.Size(1000, 700)
     $form.StartPosition = 'CenterScreen'
     $form.FormBorderStyle = 'FixedDialog'
     $form.MaximizeBox = $false
     $form.MinimizeBox = $false
+
+    # Maturity Level selection
+    $maturityLabel = New-Object Windows.Forms.Label
+    $maturityLabel.Text = "How many Maturity Levels are you Planning ?"
+    $maturityLabel.Location = New-Object Drawing.Point(10,10)
+    $maturityLabel.Size = New-Object Drawing.Size(350, 25)
+    $form.Controls.Add($maturityLabel)
+
+    $maturityUpDown = New-Object Windows.Forms.NumericUpDown
+    $maturityUpDown.Location = New-Object Drawing.Point(370,10)
+    $maturityUpDown.Size = New-Object Drawing.Size(60,25)
+    $maturityUpDown.Minimum = 1
+    $maturityUpDown.Maximum = 10
+    $maturityUpDown.Value = 1
+    $form.Controls.Add($maturityUpDown)
+
     $label = New-Object Windows.Forms.Label
     $label.Text = "Select controls and configure properties."
     $label.AutoSize = $true
-    $label.Location = New-Object Drawing.Point(10,10)
+    $label.Location = New-Object Drawing.Point(10,40)
     $form.Controls.Add($label)
     $tree = New-Object Windows.Forms.TreeView
-    $tree.Location = New-Object Drawing.Point(10,40)
-    $tree.Size = New-Object Drawing.Size(350,500)
+    $tree.Location = New-Object Drawing.Point(10,70)
+    $tree.Size = New-Object Drawing.Size(350,550)
     $tree.CheckBoxes = $true
     $form.Controls.Add($tree)
     $capabilities = $controls | Group-Object Capability
@@ -47,17 +63,20 @@ function Show-PurviewConfigAnalyserGUI {
     }
     # Panel for dynamic property controls
     $propertyPanel = New-Object Windows.Forms.Panel
-    $propertyPanel.Location = New-Object Drawing.Point(370,40)
-    $propertyPanel.Size = New-Object Drawing.Size(500,500)
+    $propertyPanel.Location = New-Object Drawing.Point(370,70)
+    $propertyPanel.Size = New-Object Drawing.Size(600,550)
     $propertyPanel.AutoScroll = $true
     $form.Controls.Add($propertyPanel)
     $propertyInputs = @{}
+    $maturityInputs = @{}
 
     function Update-PropertyPanel {
         $propertyPanel.Controls.Clear()
         $propertyInputs.Clear()
+        $maturityInputs.Clear()
         $y = 10
         $checkedControls = @()
+        $numLevels = [int]$maturityUpDown.Value
         foreach ($cap in $tree.Nodes) {
             foreach ($ctrl in $cap.Nodes) {
                 if ($ctrl.Checked) { $checkedControls += $ctrl.Tag }
@@ -65,14 +84,31 @@ function Show-PurviewConfigAnalyserGUI {
         }
         foreach ($cid in $checkedControls) {
             $props = $properties | Where-Object { $_.ControlID -eq $cid }
+            $ctrlRow = $controls | Where-Object { $_.ControlID -eq $cid }
+            # Header first, then maturity input, then properties
+            $labelHeader = New-Object Windows.Forms.Label
+            $labelHeader.Text = "ControlID: $cid - $($ctrlRow.Control)"
+            $labelHeader.Font = New-Object Drawing.Font('Segoe UI',10,[Drawing.FontStyle]::Bold)
+            $labelHeader.Location = New-Object Drawing.Point(10, $y)
+            $labelHeader.Size = New-Object Drawing.Size(500, 25)
+            $propertyPanel.Controls.Add($labelHeader)
+            $y = [int]($y + 30)
+
+            $maturityLabel = New-Object Windows.Forms.Label
+            $maturityLabel.Text = "Maturity Level for ${cid}:"
+            $maturityLabel.Location = New-Object Drawing.Point(20, $y)
+            $maturityLabel.Size = New-Object Drawing.Size(150, 25)
+            $propertyPanel.Controls.Add($maturityLabel)
+            $maturityCombo = New-Object Windows.Forms.ComboBox
+            $maturityCombo.Location = New-Object Drawing.Point(180, $y)
+            $maturityCombo.Size = New-Object Drawing.Size(60, 25)
+            for ($i = 1; $i -le $numLevels; $i++) { $maturityCombo.Items.Add($i) }
+            $maturityCombo.SelectedIndex = 0
+            $propertyPanel.Controls.Add($maturityCombo)
+            $maturityInputs[$cid] = $maturityCombo
+            $y = [int]($y + 30)
+
             if ($props) {
-                $labelHeader = New-Object Windows.Forms.Label
-                $labelHeader.Text = "ControlID: $cid"
-                $labelHeader.Font = New-Object Drawing.Font('Segoe UI',10,[Drawing.FontStyle]::Bold)
-                $labelHeader.Location = New-Object Drawing.Point(10, $y)
-                $labelHeader.Size = New-Object Drawing.Size(400, 25)
-                $propertyPanel.Controls.Add($labelHeader)
-                $y += 30
                 foreach ($p in $props) {
                     $isRequired = ($p.MustConfigure -eq $true -or $p.MustConfigure -eq 'true' -or [string]::IsNullOrWhiteSpace($p.DefaultValue))
                     $labelText = if ($isRequired) { "* $($p.Properties)" } else { $p.Properties }
@@ -87,7 +123,7 @@ function Show-PurviewConfigAnalyserGUI {
                     $tb.Text = $p.DefaultValue
                     $propertyPanel.Controls.Add($tb)
                     $propertyInputs["$($cid)|$($p.Properties)"] = @{ TextBox = $tb; Required = $isRequired }
-                    $y += 35
+                    $y = [int]($y + 35)
                 }
             }
         }
@@ -132,7 +168,11 @@ function Show-PurviewConfigAnalyserGUI {
         $missingProps = @()
         foreach ($cid in $checked) {
             $ctrl = $controls | Where-Object { $_.ControlID -eq $cid }
-            $ctrlOut += [PSCustomObject]@{ Capability=$ctrl.Capability; ControlID=$ctrl.ControlID; Control=$ctrl.Control }
+            $maturityLevel = 1
+            if ($maturityInputs.ContainsKey($cid)) {
+                $maturityLevel = $maturityInputs[$cid].SelectedItem
+            }
+            $ctrlOut += [PSCustomObject]@{ Capability=$ctrl.Capability; ControlID=$ctrl.ControlID; Control=$ctrl.Control; MaturityLevel=$maturityLevel }
             $props = $properties | Where-Object { $_.ControlID -eq $cid }
             foreach ($p in $props) {
                 $key = "$($cid)|$($p.Properties)"
@@ -147,7 +187,7 @@ function Show-PurviewConfigAnalyserGUI {
                     $allValid = $false
                     $missingProps += "$($p.Properties) (ControlID: $cid)"
                 }
-                $propOut += [PSCustomObject]@{ ControlID=$cid; Properties=$p.Properties; DefaultValue=$val; MustConfigure=$p.MustConfigure }
+                $propOut += [PSCustomObject]@{ ControlID=$cid; Properties=$p.Properties; DefaultValue=$val; MustConfigure=$p.MustConfigure; MaturityLevel=$maturityLevel }
             }
         }
         if (-not $allValid) {

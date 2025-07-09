@@ -1,43 +1,43 @@
-Capability,ControlID,Control,CreatedON,ModifiedOn,IsActive
-Sensitivity Labels,SL_1.1,Sensitivity label is Published,8/07/2025,8/07/2025,TRUE
-Sensitivity Labels,SL_1.2,Sensitivity label content markings are enabled,8/07/2025,8/07/2025,TRUE
-Sensitivity Labels,SL_1.3,A sensitivity label taxonomy that includes all required classifications ,8/07/2025,8/07/2025,TRUE
-Sensitivity Labels,SL_1.4,Sensitivity label policy configuration for mandatory labelling is enabled,8/07/2025,8/07/2025,TRUE
-Sensitivity Labels,SL_1.5,Sensitivity label policy configuration for mandatory labelling of PowerBI Reports is enabled,8/07/2025,8/07/2025,TRUE
-Sensitivity Labels,SL_1.6,Sensitivity label policy configuration for mandatory labelling of Teams channels is enabled,8/07/2025,8/07/2025,TRUE
-Sensitivity Labels,SL_1.7,Sensitivity label policy configuration for inheriting label from content is enabled,8/07/2025,8/07/2025,TRUE
-Sensitivity Labels,SL_1.8,Sensitivity label policy configuration for requesting justification on label downgrade is enabled,8/07/2025,8/07/2025,TRUE
-Sensitivity Labels,SL_1.9,Sensitivity label policy configuration for mandatory labelling of Sites and Teams group is enabled,8/07/2025,8/07/2025,TRUE
-Sensitivity Labels,SL_1.10,Sensitivity label policy configuration for more info URL published with learning and self-help material,8/07/2025,8/07/2025,TRUE
-Sensitivity Labels,SL_1.11,Sensitivity label policy configuration for default PowerBI labelling,8/07/2025,8/07/2025,TRUE
-Sensitivity Labels,SL_1.12,Sensitivity label policy configuration for default labelling,8/07/2025,8/07/2025,TRUE
-Sensitivity Labels,SL_1.13,Meeting and calendar item sensitivity label scope,8/07/2025,8/07/2025,TRUE
-Sensitivity Labels,SL_1.14,Groups and Sites label settings configured,8/07/2025,8/07/2025,TRUE
-Sensitivity Labels,SL_1.15,Application of labels to legacy locations,8/07/2025,8/07/2025,FALSE
-Sensitivity Labels,SL_1.16,Enablement of item encryption to protect unauthorized access to classified items,8/07/2025,8/07/2025,TRUE
-Sensitivity Auto-labelling,SAL_2.1,Auto-labelling of email during transport based on PSPF markings (x-header and subject),8/07/2025,8/07/2025,TRUE
-Sensitivity Auto-labelling,SAL_2.2,Label recommendations when protective markings are detected,8/07/2025,8/07/2025,FALSE
-Sensitivity Auto-labelling,SAL_2.3,Label recommendations provided to users when sensitive information is detected,8/07/2025,8/07/2025,TRUE
-Sensitivity Auto-labelling,SAL_2.4,Automatic labelling of files at rest in SharePoint and OneDrive locations,8/07/2025,8/07/2025,TRUE
-Sensitivity Auto-labelling,SAL_2.5,Automatic labelling of items with legacy classifications,8/07/2025,8/07/2025,FALSE
-Sensitivity Auto-labelling,SAL_2.6,Automatic labelling of items marked via document properties,8/07/2025,8/07/2025,FALSE
-Sensitivity Auto-labelling,SAL_2.7,Automatic labelling of cold data,8/07/2025,8/07/2025,FALSE
-Sensitivity Auto-labelling,SAL_2.8,Automatic labelling of email generated via calendar items via paragraph markings,8/07/2025,8/07/2025,FALSE
-Insider Risk Management,IRM_3.1,Enablement of IRM Analytics,8/07/2025,8/07/2025,FALSE
-Insider Risk Management,IRM_3.2,Enablement of policies prioritizing classified items,8/07/2025,8/07/2025,FALSE
-Insider Risk Management,IRM_3.2,"Enablement of policies aligning with priority DLP (e.g., exfiltration of security classified items)",8/07/2025,8/07/2025,FALSE
-Insider Risk Management,IRM_3.2,Configuration of adaptive protection to automatically restrict high risk users,8/07/2025,8/07/2025,FALSE
-Data Loss Prevention,DLP_4.1,DLP policies applying protective markings : Prepend Subject in Emails,8/07/2025,8/07/2025,TRUE
-Data Loss Prevention,DLP_4.2,DLP policies applying protective markings : Set x-Headers t in Emails,8/07/2025,8/07/2025,TRUE
-Data Loss Prevention,DLP_4.3,DLP policies protecting security classified items (OFFICIAL: Sensitive and above),8/07/2025,8/07/2025,FALSE
-Data Loss Prevention,DLP_4.4,"DLP policies protecting sensitive information (health, PII, financial, etc.)",8/07/2025,8/07/2025,FALSE
-Data Loss Prevention,DLP_4.5,Enablement of DLP Analytics,8/07/2025,8/07/2025,FALSE
-Data Loss Prevention,DLP_4.6,DLP policies preventing data spill (higher than permitted classifications),8/07/2025,8/07/2025,FALSE
-Data Loss Prevention,DLP_4.7,DLP policies protecting organization specific sensitive info,8/07/2025,8/07/2025,FALSE
-Data Loss Prevention,DLP_4.8,Inclusion of advanced classifiers in DLP policy conditions to reduce false positives,8/07/2025,8/07/2025,FALSE
-Data Loss Prevention,DLP_4.9,DLP policies to identify and protect email with lowered classifications,8/07/2025,8/07/2025,FALSE
-Data Loss Prevention,DLP_4.10,Enablement of OCR capabilities to enable DLP for images and scanned items,8/07/2025,8/07/2025,FALSE
-Data Loss Prevention,DLP_4.11,Extension of DLP capabilities to EndPoint and defender for cloud apps,8/07/2025,8/07/2025,FALSE
-Data Classification,DC_5.1,Identification of organization specific sensitive information through custom SITs,8/07/2025,8/07/2025,FALSE
-Data Classification,DC_5.2,Investigation of existing classifier success in matching organization specific info ,8/07/2025,8/07/2025,FALSE
-Data Classification,DC_5.3,Enablement of Exact Data Match and/or document fingerprinting ,8/07/2025,8/07/2025,FALSE
+Maturity Level,Capability,ControlID,Control,CreatedON,ModifiedOn,IsActive
+1,Sensitivity Labels,SL_1.1,Sensitivity label is Published,8/07/2025,8/07/2025,TRUE
+1,Sensitivity Labels,SL_1.2,Sensitivity label content markings are enabled,8/07/2025,8/07/2025,TRUE
+1,Sensitivity Labels,SL_1.3,A sensitivity label taxonomy that includes all required classifications ,8/07/2025,8/07/2025,TRUE
+2,Sensitivity Labels,SL_1.4,Sensitivity label policy configuration for mandatory labelling is enabled,8/07/2025,8/07/2025,TRUE
+2,Sensitivity Labels,SL_1.5,Sensitivity label policy configuration for mandatory labelling of PowerBI Reports is enabled,8/07/2025,8/07/2025,TRUE
+2,Sensitivity Labels,SL_1.6,Sensitivity label policy configuration for mandatory labelling of Teams channels is enabled,8/07/2025,8/07/2025,TRUE
+2,Sensitivity Labels,SL_1.7,Sensitivity label policy configuration for inheriting label from content is enabled,8/07/2025,8/07/2025,TRUE
+2,Sensitivity Labels,SL_1.8,Sensitivity label policy configuration for requesting justification on label downgrade is enabled,8/07/2025,8/07/2025,TRUE
+3,Sensitivity Labels,SL_1.9,Sensitivity label policy configuration for mandatory labelling of Sites and Teams group is enabled,8/07/2025,8/07/2025,TRUE
+3,Sensitivity Labels,SL_1.10,Sensitivity label policy configuration for more info URL published with learning and self-help material,8/07/2025,8/07/2025,TRUE
+3,Sensitivity Labels,SL_1.11,Sensitivity label policy configuration for default PowerBI labelling,8/07/2025,8/07/2025,TRUE
+2,Sensitivity Labels,SL_1.12,Sensitivity label policy configuration for default labelling,8/07/2025,8/07/2025,TRUE
+2,Sensitivity Labels,SL_1.13,Meeting and calendar item sensitivity label scope,8/07/2025,8/07/2025,TRUE
+3,Sensitivity Labels,SL_1.14,Groups and Sites label settings configured,8/07/2025,8/07/2025,TRUE
+2,Sensitivity Labels,SL_1.15,Application of labels to legacy locations,8/07/2025,8/07/2025,FALSE
+2,Sensitivity Labels,SL_1.16,Enablement of item encryption to protect unauthorized access to classified items,8/07/2025,8/07/2025,TRUE
+1,Sensitivity Auto-labelling,SAL_2.1,Auto-labelling of email during transport based on PSPF markings (x-header and subject),8/07/2025,8/07/2025,TRUE
+2,Sensitivity Auto-labelling,SAL_2.2,Label recommendations when protective markings are detected,8/07/2025,8/07/2025,FALSE
+2,Sensitivity Auto-labelling,SAL_2.3,Label recommendations provided to users when sensitive information is detected,8/07/2025,8/07/2025,TRUE
+2,Sensitivity Auto-labelling,SAL_2.4,Automatic labelling of files at rest in SharePoint and OneDrive locations,8/07/2025,8/07/2025,TRUE
+3,Sensitivity Auto-labelling,SAL_2.5,Automatic labelling of items with legacy classifications,8/07/2025,8/07/2025,FALSE
+3,Sensitivity Auto-labelling,SAL_2.6,Automatic labelling of items marked via document properties,8/07/2025,8/07/2025,FALSE
+3,Sensitivity Auto-labelling,SAL_2.7,Automatic labelling of cold data,8/07/2025,8/07/2025,FALSE
+3,Sensitivity Auto-labelling,SAL_2.8,Automatic labelling of email generated via calendar items via paragraph markings,8/07/2025,8/07/2025,FALSE
+1,Insider Risk Management,IRM_3.1,Enablement of IRM Analytics,8/07/2025,8/07/2025,FALSE
+2,Insider Risk Management,IRM_3.2,Enablement of policies prioritizing classified items,8/07/2025,8/07/2025,FALSE
+3,Insider Risk Management,IRM_3.2,"Enablement of policies aligning with priority DLP (e.g., exfiltration of security classified items)",8/07/2025,8/07/2025,FALSE
+3,Insider Risk Management,IRM_3.2,Configuration of adaptive protection to automatically restrict high risk users,8/07/2025,8/07/2025,FALSE
+1,Data Loss Prevention,DLP_4.1,DLP policies applying protective markings : Prepend Subject in Emails,8/07/2025,8/07/2025,TRUE
+1,Data Loss Prevention,DLP_4.2,DLP policies applying protective markings : Set x-Headers t in Emails,8/07/2025,8/07/2025,TRUE
+2,Data Loss Prevention,DLP_4.3,DLP policies protecting security classified items (OFFICIAL: Sensitive and above),8/07/2025,8/07/2025,FALSE
+2,Data Loss Prevention,DLP_4.4,"DLP policies protecting sensitive information (health, PII, financial, etc.)",8/07/2025,8/07/2025,FALSE
+1,Data Loss Prevention,DLP_4.5,Enablement of DLP Analytics,8/07/2025,8/07/2025,FALSE
+2,Data Loss Prevention,DLP_4.6,DLP policies preventing data spill (higher than permitted classifications),8/07/2025,8/07/2025,FALSE
+2,Data Loss Prevention,DLP_4.7,DLP policies protecting organization specific sensitive info,8/07/2025,8/07/2025,FALSE
+3,Data Loss Prevention,DLP_4.8,Inclusion of advanced classifiers in DLP policy conditions to reduce false positives,8/07/2025,8/07/2025,FALSE
+3,Data Loss Prevention,DLP_4.9,DLP policies to identify and protect email with lowered classifications,8/07/2025,8/07/2025,FALSE
+2,Data Loss Prevention,DLP_4.10,Enablement of OCR capabilities to enable DLP for images and scanned items,8/07/2025,8/07/2025,FALSE
+3,Data Loss Prevention,DLP_4.11,Extension of DLP capabilities to EndPoint and defender for cloud apps,8/07/2025,8/07/2025,FALSE
+2,Data Classification,DC_5.1,Identification of organization specific sensitive information through custom SITs,8/07/2025,8/07/2025,FALSE
+3,Data Classification,DC_5.2,Investigation of existing classifier success in matching organization specific info ,8/07/2025,8/07/2025,FALSE
+2,Data Classification,DC_5.3,Enablement of Exact Data Match and/or document fingerprinting ,8/07/2025,8/07/2025,FALSE
