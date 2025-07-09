@@ -315,7 +315,7 @@ function Execute-CollectAndTest {
         Write-Host "Configuration collection completed successfully!" -ForegroundColor Green
         $reportSize = (Get-Item $optimizedReportPath).Length / 1MB
         $sizeMB = [math]::Round($reportSize, 2)
-        Write-Host ("   Using OptimizedReport: {0} ({1} MB)" -f (Split-Path -Leaf $optimizedReportPath), $sizeMB) -ForegroundColor Gray
+    Write-Host ("   Using OptimizedReport: {0} ({1}) MB" -f (Split-Path -Leaf $optimizedReportPath), $sizeMB) -ForegroundColor Gray
         Write-Host ""
 
         Write-Host "Step 2: Select Validation Test Configuration..." -ForegroundColor Yellow
@@ -390,7 +390,7 @@ function Execute-CollectOnly {
             Write-Host "Configuration collection completed successfully!" -ForegroundColor Green
             $reportSize = (Get-Item $optimizedReportPath).Length / 1MB
             $sizeMB = [math]::Round($reportSize, 2)
-            Write-Host ("   Configuration saved to: {0} ({1} MB)" -f (Split-Path -Leaf $optimizedReportPath), $sizeMB) -ForegroundColor Gray
+            Write-Host ("   Configuration saved to: {0} ({1}) MB" -f (Split-Path -Leaf $optimizedReportPath), $sizeMB) -ForegroundColor Gray
         } else {
             Write-Host "Configuration collection completed, but OptimizedReport file not found" -ForegroundColor Yellow
         }
@@ -730,111 +730,101 @@ function Execute-CreateCustomConfig {
         $customControls = @()
         $customProperties = @()
         
-        foreach ($capability in $capabilities) {
-            Write-Host "┌─────────────────────────────────────────────────────────────────────────────────┐" -ForegroundColor Blue
-            Write-Host "│ CAPABILITY: $($capability.Name.ToUpper())" -ForegroundColor Blue
-            Write-Host "├─────────────────────────────────────────────────────────────────────────────────┤" -ForegroundColor Blue
-            
-            foreach ($control in $capability.Group) {
-                if ($control.IsActive -eq 'TRUE') {
-                    Write-Host "│" -ForegroundColor Blue
-                    Write-Host "│ Control: $($control.ControlID)" -ForegroundColor White
-                    Write-Host "│ Description: $($control.Control)" -ForegroundColor Gray
-                    
-                    # Get property details for this control
-                    $property = $propertyReference | Where-Object { $_.ControlID -eq $control.ControlID }
-                    
-                    if ($property) {
-                        $isRequired = -not [string]::IsNullOrWhiteSpace($property.MustConfigure)
-                        $defaultValue = $property.DefaultValue
-                        
-                        Write-Host "│ Property: $($property.Properties)" -ForegroundColor Cyan
-                        
-                        if ($isRequired) {
-                            Write-Host "│ [REQUIRED] This field must be configured" -ForegroundColor Red
-                        }
-                        
-                        if (-not [string]::IsNullOrWhiteSpace($defaultValue)) {
-                            Write-Host "│ Default Value: $defaultValue" -ForegroundColor Yellow
-                        }
-                        
-                        # Get user input
-                        do {
-                            Write-Host "│" -ForegroundColor Blue
-                            if ($isRequired) {
-                                $prompt = "│ [REQUIRED] Enter value"
-                                if (-not [string]::IsNullOrWhiteSpace($defaultValue)) {
-                                    $prompt += " (default: $defaultValue)"
-                                }
-                                $prompt += ": "
-                            } else {
-                                $prompt = "│ Enter value (default: $defaultValue, press ENTER to accept): "
-                            }
-                            
-                            $userInput = Read-Host $prompt
-                            
-                            # Handle user input
-                            if ([string]::IsNullOrWhiteSpace($userInput)) {
-                                if ($isRequired -and [string]::IsNullOrWhiteSpace($defaultValue)) {
-                                    Write-Host "│ ❌ This field is required. Please enter a value." -ForegroundColor Red
-                                    continue
-                                } else {
-                                    $finalValue = $defaultValue
-                                    break
-                                }
-                            } else {
-                                $finalValue = $userInput
-                                break
-                            }
-                        } while ($true)
-                        
-                        # Add to custom properties
-                        $customProperties += [PSCustomObject]@{
-                            ControlID = $control.ControlID
-                            Properties = $property.Properties
-                            DefaultValue = $finalValue
-                            MustConfigure = $property.MustConfigure
-                        }
-                        
-                        Write-Host "│ Value set to: $finalValue" -ForegroundColor Green
-                    }
-                    
-                    # Add to custom controls (always active for user-selected controls)
-                    $customControls += [PSCustomObject]@{
-                        Capability = $control.Capability
-                        ControlID = $control.ControlID
-                        Control = $control.Control
-                        CreatedON = Get-Date -Format 'M/d/yyyy'
-                        ModifiedOn = Get-Date -Format 'M/d/yyyy'
-                        IsActive = 'TRUE'
-                    }
-                }
-            }
-            
-            Write-Host "└─────────────────────────────────────────────────────────────────────────────────┘" -ForegroundColor Blue
+        while ($true) {
+            Write-Host "┌─────────────────────────────────────────────────────────────────────────────────┐" -ForegroundColor Cyan
+            Write-Host "│                           MAIN MENU - CHOOSE YOUR ACTION                           │" -ForegroundColor Cyan
+            Write-Host "├─────────────────────────────────────────────────────────────────────────────────┤" -ForegroundColor Cyan
+            Write-Host "│  1. Extract Configuration and Run Tests                                          │" -ForegroundColor White
+            Write-Host "│     -> Connect to your tenant, collect data, then run compliance tests           │" -ForegroundColor Gray
+            Write-Host "│     -> Best for: Complete assessment from start to finish                        │" -ForegroundColor Gray
+            Write-Host "│                                                                                 │" -ForegroundColor Gray
+            Write-Host "│  2. Extract Configuration Only                                                   │" -ForegroundColor White
+            Write-Host "│     -> Connect to your tenant and collect configuration data                     │" -ForegroundColor Gray
+            Write-Host "│     -> Best for: Data collection without immediate testing                       │" -ForegroundColor Gray
+            Write-Host "│                                                                                 │" -ForegroundColor Gray
+            Write-Host "│  3. Run Validation Tests Only                                                    │" -ForegroundColor White
+            Write-Host "│     -> Use existing data to run compliance tests                                 │" -ForegroundColor Gray
+            Write-Host "│     -> Best for: Testing against previously collected data                       │" -ForegroundColor Gray
+            Write-Host "│                                                                                 │" -ForegroundColor Gray
+            Write-Host "│  4. Create Custom Configuration                                                  │" -ForegroundColor White
+            Write-Host "│     -> Build your own control book for organization-specific requirements        │" -ForegroundColor Gray
+            Write-Host "│     -> Best for: Custom compliance frameworks                                    │" -ForegroundColor Gray
+            Write-Host "│                                                                                 │" -ForegroundColor Gray
+            Write-Host "│  5. Exit                                                                        │" -ForegroundColor White
+            Write-Host "│     -> Close the application                                                    │" -ForegroundColor Gray
+            Write-Host "└─────────────────────────────────────────────────────────────────────────────────┘" -ForegroundColor Cyan
             Write-Host ""
+            Write-Host "Tip: If you're new to this tool, start with option 1 for a complete assessment!" -ForegroundColor Yellow
+            Write-Host ""
+            $choice = Read-Host "Please select an option (1-5)"
+            if ($choice -match '^[1-5]$') {
+                if ($choice -eq '1') {
+                    Write-Host ""
+                    Write-Host "EXTRACT CONFIGURATION AND RUN TESTS" -ForegroundColor Yellow
+                    Write-Host "====================================" -ForegroundColor Yellow
+                    Write-Host "This will:" -ForegroundColor White
+                    Write-Host "  1. Connect to your Microsoft 365 tenant" -ForegroundColor Gray
+                    Write-Host "  2. Extract Purview configuration data" -ForegroundColor Gray
+                    Write-Host "  3. Present available compliance frameworks for testing" -ForegroundColor Gray
+                    Write-Host "  4. Generate comprehensive compliance reports" -ForegroundColor Gray
+                    Write-Host ""
+                    Execute-CollectAndTest -OutputPath $OutputPath -UserPrincipalName $UserPrincipalName
+                } elseif ($choice -eq '2') {
+                    Write-Host ""
+                    Write-Host "EXTRACT CONFIGURATION ONLY" -ForegroundColor Yellow
+                    Write-Host "==========================" -ForegroundColor Yellow
+                    Write-Host "This will:" -ForegroundColor White
+                    Write-Host "  1. Connect to your Microsoft 365 tenant" -ForegroundColor Gray
+                    Write-Host "  2. Extract Purview configuration data" -ForegroundColor Gray
+                    Write-Host "  3. Save data for later analysis" -ForegroundColor Gray
+                    Write-Host ""
+                    Execute-CollectOnly -OutputPath $OutputPath -UserPrincipalName $UserPrincipalName
+                } elseif ($choice -eq '3') {
+                    Write-Host ""
+                    Write-Host "RUN VALIDATION TESTS ONLY" -ForegroundColor Yellow
+                    Write-Host "=========================" -ForegroundColor Yellow
+                    Write-Host "This will:" -ForegroundColor White
+                    Write-Host "  1. Use existing configuration data" -ForegroundColor Gray
+                    Write-Host "  2. Present available compliance frameworks" -ForegroundColor Gray
+                    Write-Host "  3. Generate compliance assessment reports" -ForegroundColor Gray
+                    Write-Host ""
+                    Execute-TestOnly -OutputPath $OutputPath -UserPrincipalName $UserPrincipalName
+                } elseif ($choice -eq '4') {
+                    Write-Host ""
+                    Write-Host "CREATE CUSTOM CONFIGURATION" -ForegroundColor Yellow
+                    Write-Host "===========================" -ForegroundColor Yellow
+                    Write-Host "This will:" -ForegroundColor White
+                    Write-Host "  1. Launch the Windows Forms GUI to create a custom control book" -ForegroundColor Gray
+                    Write-Host "  2. Allow you to define organization-specific controls" -ForegroundColor Gray
+                    Write-Host "  3. Save your configuration for future use" -ForegroundColor Gray
+                    Write-Host ""
+                    $guiScript = Join-Path $PSScriptRoot 'Show-PurviewConfigAnalyserGUI.ps1'
+                    if (Test-Path $guiScript) {
+                        . $guiScript
+                        Show-PurviewConfigAnalyserGUI
+                    } else {
+                        Write-Host "GUI script not found at: $guiScript" -ForegroundColor Red
+                    }
+                } elseif ($choice -eq '5') {
+                    Write-Host ""
+                    Write-Host "EXITING APPLICATION" -ForegroundColor Green
+                    Write-Host "===================" -ForegroundColor Green
+                    Write-Host "Thank you for using the Microsoft Purview Configuration Analyser!" -ForegroundColor Green
+                    Write-Host "Your compliance journey continues..." -ForegroundColor Gray
+                    Write-Host ""
+                    break
+                }
+                if ($choice -ne '5') {
+                    Write-Host ""
+                    Write-Host "---------------------------------------------------------------" -ForegroundColor DarkGray
+                    Write-Host "Press any key to return to the main menu..." -ForegroundColor Cyan
+                    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                    Write-Host ""
+                }
+            } else {
+                Write-Host "Invalid input. Please enter a number between 1 and 5." -ForegroundColor Red
+            }
         }
-        
-        # Save the custom configuration files
-    Write-Host "SAVING CUSTOM CONFIGURATION" -ForegroundColor Green
-    Write-Host "═══════════════════════════════" -ForegroundColor Green
-        
-        $configOutputPath = "$PSScriptRoot\..\..\config"
-        $controlBookPath = "$configOutputPath\ControlBook_${configName}_Config.csv"
-        $propertyBookPath = "$configOutputPath\ControlBook_Property_${configName}_Config.csv"
-        
-        # Export control book
-        $customControls | Export-Csv -Path $controlBookPath -NoTypeInformation
-    Write-Host "Control book saved: $controlBookPath" -ForegroundColor Green
-        
-        # Export property book
-        $customProperties | Export-Csv -Path $propertyBookPath -NoTypeInformation
-    Write-Host "Property book saved: $propertyBookPath" -ForegroundColor Green
-        
-        Write-Host ""
-    Write-Host "CONFIGURATION CREATED SUCCESSFULLY!" -ForegroundColor Green
-    Write-Host "═════════════════════════════════════════" -ForegroundColor Green
-        Write-Host "Configuration Name: $configName" -ForegroundColor White
         Write-Host "Total Controls: $($customControls.Count)" -ForegroundColor White
         Write-Host "Active Controls: $($customControls.Count)" -ForegroundColor White
         Write-Host ""
