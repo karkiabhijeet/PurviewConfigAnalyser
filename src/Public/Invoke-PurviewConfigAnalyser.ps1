@@ -252,11 +252,18 @@ function Show-MainMenu {
                 Write-Host "⚙️ CREATE CUSTOM CONFIGURATION" -ForegroundColor Yellow
                 Write-Host "═══════════════════════════════" -ForegroundColor Yellow
                 Write-Host "This will:" -ForegroundColor White
-                Write-Host "  1. Guide you through creating a custom control book" -ForegroundColor Gray
+                Write-Host "  1. Launch the Windows Forms GUI to create a custom control book" -ForegroundColor Gray
                 Write-Host "  2. Allow you to define organization-specific controls" -ForegroundColor Gray
                 Write-Host "  3. Save your configuration for future use" -ForegroundColor Gray
                 Write-Host ""
-                Execute-CreateCustomConfig
+                # Import the GUI script if not already loaded
+                $guiScript = Join-Path $PSScriptRoot 'Show-PurviewConfigAnalyserGUI.ps1'
+                if (Test-Path $guiScript) {
+                    . $guiScript
+                    Show-PurviewConfigAnalyserGUI
+                } else {
+                    Write-Host "❌ GUI script not found at: $guiScript" -ForegroundColor Red
+                }
             }
             '5' {
                 Write-Host ""
