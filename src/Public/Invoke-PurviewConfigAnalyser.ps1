@@ -168,11 +168,11 @@ function Show-MainMenu {
     Write-Host "Welcome to the Microsoft Purview Configuration Analyser!" -ForegroundColor Green
     Write-Host "This tool helps you assess your Microsoft Purview compliance posture." -ForegroundColor Gray
     Write-Host ""
-    Write-Host "🔍 What you can do:" -ForegroundColor Cyan
-    Write-Host "  • Extract configuration data from your Microsoft Purview tenant" -ForegroundColor Gray
-    Write-Host "  • Run compliance assessments against industry frameworks (like PSPF)" -ForegroundColor Gray
-    Write-Host "  • Create custom control books tailored to your organization" -ForegroundColor Gray
-    Write-Host "  • Generate detailed reports in CSV and Excel formats" -ForegroundColor Gray
+    Write-Host "What you can do:" -ForegroundColor Cyan
+    Write-Host "  - Extract configuration data from your Microsoft Purview tenant" -ForegroundColor Gray
+    Write-Host "  - Run compliance assessments against industry frameworks (like PSPF)" -ForegroundColor Gray
+    Write-Host "  - Create custom control books tailored to your organization" -ForegroundColor Gray
+    Write-Host "  - Generate detailed reports in CSV and Excel formats" -ForegroundColor Gray
     Write-Host ""
     
     do {
@@ -199,7 +199,7 @@ function Show-MainMenu {
     Write-Host "│     -> Close the application                                                    │" -ForegroundColor Gray
     Write-Host "└─────────────────────────────────────────────────────────────────────────────────┘" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "💡 Tip: If you're new to this tool, start with option 1 for a complete assessment!" -ForegroundColor Yellow
+    Write-Host "Tip: If you're new to this tool, start with option 1 for a complete assessment!" -ForegroundColor Yellow
         Write-Host ""
         
         do {
@@ -517,11 +517,11 @@ function Show-ConfigurationMenu {
         $configurations += $configName
     }
     
-    Write-Host "🎯 SELECT COMPLIANCE FRAMEWORK" -ForegroundColor Yellow
+    Write-Host "SELECT COMPLIANCE FRAMEWORK" -ForegroundColor Yellow
     Write-Host "═══════════════════════════════" -ForegroundColor Yellow
     Write-Host "Choose the compliance framework you want to assess against:" -ForegroundColor White
     Write-Host ""
-    
+
     Write-Host "┌─────────────────────────────────────────────────────────────────────────────────┐" -ForegroundColor Cyan
     Write-Host "│                        AVAILABLE COMPLIANCE FRAMEWORKS                          │" -ForegroundColor Cyan
     Write-Host "├─────────────────────────────────────────────────────────────────────────────────┤" -ForegroundColor Cyan
@@ -533,21 +533,21 @@ function Show-ConfigurationMenu {
             $description = "Custom configuration for $config requirements"
         }
         
-        Write-Host "│  $optionNumber. $config" -ForegroundColor White
-        Write-Host "│     → $description" -ForegroundColor Gray
-        Write-Host "│" -ForegroundColor Gray
+    Write-Host "│  $optionNumber. $config" -ForegroundColor White
+    Write-Host "│     - $description" -ForegroundColor Gray
+    Write-Host "│" -ForegroundColor Gray
         $optionNumber++
     }
     
-    Write-Host "│  $optionNumber. ⚙️ Create New Custom Configuration" -ForegroundColor White
-    Write-Host "│     → Build your own control book for specific requirements" -ForegroundColor Gray
+    Write-Host "│  $optionNumber. Create New Custom Configuration" -ForegroundColor White
+    Write-Host "│     - Build your own control book for specific requirements" -ForegroundColor Gray
     Write-Host "│" -ForegroundColor Gray
-    Write-Host "│  $($optionNumber + 1). ↩️ Cancel and Return to Main Menu" -ForegroundColor White
-    Write-Host "│     → Go back without making a selection" -ForegroundColor Gray
+    Write-Host "│  $($optionNumber + 1). Cancel and Return to Main Menu" -ForegroundColor White
+    Write-Host "│     - Go back without making a selection" -ForegroundColor Gray
     Write-Host "└─────────────────────────────────────────────────────────────────────────────────┘" -ForegroundColor Cyan
     Write-Host ""
-    
-    Write-Host "💡 Tip: Each framework has different controls and requirements. Choose the one that matches your organization's needs." -ForegroundColor Yellow
+
+    Write-Host "Tip: Each framework has different controls and requirements. Choose the one that matches your organization's needs." -ForegroundColor Yellow
     Write-Host ""
     
     do {
@@ -567,17 +567,17 @@ function Show-ConfigurationMenu {
             }
             elseif ($choiceNum -eq ($configurations.Count + 1)) {
                 Write-Host ""
-                Write-Host "⚙️ Redirecting to Custom Configuration Creator..." -ForegroundColor Yellow
+                Write-Host "Redirecting to Custom Configuration Creator..." -ForegroundColor Yellow
                 return 'CreateCustom'
             }
             elseif ($choiceNum -eq ($configurations.Count + 2)) {
                 Write-Host ""
-                Write-Host "↩️ Returning to main menu..." -ForegroundColor Gray
+                Write-Host "Returning to main menu..." -ForegroundColor Gray
                 return $null
             }
         }
         
-        Write-Host "❌ Invalid input. Please enter a number between 1 and $($optionNumber + 1)." -ForegroundColor Red
+    Write-Host "Invalid input. Please enter a number between 1 and $($optionNumber + 1)." -ForegroundColor Red
         
     } while ($true)
 }
@@ -630,17 +630,17 @@ function Show-ValidationConfigurationMenu {
             default { "Custom compliance framework: $config" }
         }
         
-        Write-Host "│  $optionNumber. 📊 $config" -ForegroundColor Gray
-        Write-Host "│     → $description" -ForegroundColor Gray
-        Write-Host "│" -ForegroundColor Gray
+    Write-Host "│  $optionNumber. $config" -ForegroundColor Gray
+    Write-Host "│     - $description" -ForegroundColor Gray
+    Write-Host "│" -ForegroundColor Gray
         $optionNumber++
     }
     
-    Write-Host "│  $optionNumber. 🔙 Back to Main Menu" -ForegroundColor Gray
-    Write-Host "│     → Return to main menu to create custom configuration (Option 4)" -ForegroundColor Gray
-    Write-Host "└─────────────────────────────────────────────────────────────────────────────────┘" -ForegroundColor Gray
+    Write-Host "│  $optionNumber. Back to Main Menu" -ForegroundColor Gray
+    Write-Host "│     - Return to main menu to create custom configuration (Option 4)" -ForegroundColor Gray
+    Write-Host "└─────────────────────────────────────────────────────────────────────────────────" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "💡 Note: To create a new custom configuration, go back to the main menu and select Option 4." -ForegroundColor Cyan
+    Write-Host "Note: To create a new custom configuration, go back to the main menu and select Option 4." -ForegroundColor Cyan
     Write-Host ""
     
     do {
@@ -671,25 +671,25 @@ function Execute-CreateCustomConfig {
     [CmdletBinding()]
     param()
     
-    Write-Host "⚙️ CREATE CUSTOM CONFIGURATION" -ForegroundColor Yellow
+    Write-Host "CREATE CUSTOM CONFIGURATION" -ForegroundColor Yellow
     Write-Host "═══════════════════════════════" -ForegroundColor Yellow
     Write-Host "This interactive wizard will help you create a custom control book tailored to your organization's specific requirements." -ForegroundColor White
     Write-Host ""
-    Write-Host "📋 What is a Control Book?" -ForegroundColor Cyan
-    Write-Host "  • A control book defines the compliance rules and checks for your organization" -ForegroundColor Gray
-    Write-Host "  • It contains specific controls that will be tested against your Purview configuration" -ForegroundColor Gray
-    Write-Host "  • Each control has criteria that determine if your setup is compliant" -ForegroundColor Gray
+    Write-Host "What is a Control Book?" -ForegroundColor Cyan
+    Write-Host "  - A control book defines the compliance rules and checks for your organization" -ForegroundColor Gray
+    Write-Host "  - It contains specific controls that will be tested against your Purview configuration" -ForegroundColor Gray
+    Write-Host "  - Each control has criteria that determine if your setup is compliant" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "🎯 How this works:" -ForegroundColor Cyan
-    Write-Host "  • You'll be shown controls grouped by capability (Sensitivity Labels, DLP, etc.)" -ForegroundColor Gray
-    Write-Host "  • For each control, you can accept the default value or provide your own" -ForegroundColor Gray
-    Write-Host "  • Required fields are marked with [REQUIRED] and must be filled" -ForegroundColor Gray
-    Write-Host "  • A new configuration will be created with your custom settings" -ForegroundColor Gray
+    Write-Host "How this works:" -ForegroundColor Cyan
+    Write-Host "  - You'll be shown controls grouped by capability (Sensitivity Labels, DLP, etc.)" -ForegroundColor Gray
+    Write-Host "  - For each control, you can accept the default value or provide your own" -ForegroundColor Gray
+    Write-Host "  - Required fields are marked with [REQUIRED] and must be filled" -ForegroundColor Gray
+    Write-Host "  - A new configuration will be created with your custom settings" -ForegroundColor Gray
     Write-Host ""
     
     # Confirm user wants to proceed
     do {
-        $proceed = Read-Host "Do you want to proceed with creating a custom configuration? (Y/N)"
+    $proceed = Read-Host "Do you want to proceed with creating a custom configuration? (Y/N)"
         if ($proceed -match '^[Yy]') {
             break
         } elseif ($proceed -match '^[Nn]') {
@@ -707,8 +707,8 @@ function Execute-CreateCustomConfig {
         $propertyReference = Import-Csv "$referenceBasePath\ControlBook_Property_Reference.csv"
         
         Write-Host ""
-        Write-Host "📝 CONFIGURATION DETAILS" -ForegroundColor Yellow
-        Write-Host "──────────────────────────" -ForegroundColor Yellow
+    Write-Host "CONFIGURATION DETAILS" -ForegroundColor Yellow
+    Write-Host "──────────────────────────" -ForegroundColor Yellow
         
         # Get configuration name
         do {
@@ -732,13 +732,13 @@ function Execute-CreateCustomConfig {
         } while ($true)
         
         Write-Host ""
-        Write-Host "🔧 INTERACTIVE CONFIGURATION BUILDER" -ForegroundColor Cyan
-        Write-Host "════════════════════════════════════" -ForegroundColor Cyan
-        Write-Host "For each control, you can:" -ForegroundColor White
-        Write-Host "  • Press ENTER to accept the default value" -ForegroundColor Gray
-        Write-Host "  • Type a new value to override the default" -ForegroundColor Gray
-        Write-Host "  • [REQUIRED] fields must be filled with appropriate values" -ForegroundColor Gray
-        Write-Host ""
+    Write-Host "INTERACTIVE CONFIGURATION BUILDER" -ForegroundColor Cyan
+    Write-Host "════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host "For each control, you can:" -ForegroundColor White
+    Write-Host "  - Press ENTER to accept the default value" -ForegroundColor Gray
+    Write-Host "  - Type a new value to override the default" -ForegroundColor Gray
+    Write-Host "  - [REQUIRED] fields must be filled with appropriate values" -ForegroundColor Gray
+    Write-Host ""
         
         # Group controls by capability
         $capabilities = $controlBookReference | Group-Object -Property Capability
@@ -812,7 +812,7 @@ function Execute-CreateCustomConfig {
                             MustConfigure = $property.MustConfigure
                         }
                         
-                        Write-Host "│ ✅ Value set to: $finalValue" -ForegroundColor Green
+                        Write-Host "│ Value set to: $finalValue" -ForegroundColor Green
                     }
                     
                     # Add to custom controls (always active for user-selected controls)
@@ -832,8 +832,8 @@ function Execute-CreateCustomConfig {
         }
         
         # Save the custom configuration files
-        Write-Host "💾 SAVING CUSTOM CONFIGURATION" -ForegroundColor Green
-        Write-Host "═══════════════════════════════" -ForegroundColor Green
+    Write-Host "SAVING CUSTOM CONFIGURATION" -ForegroundColor Green
+    Write-Host "═══════════════════════════════" -ForegroundColor Green
         
         $configOutputPath = "$PSScriptRoot\..\..\config"
         $controlBookPath = "$configOutputPath\ControlBook_${configName}_Config.csv"
@@ -841,21 +841,21 @@ function Execute-CreateCustomConfig {
         
         # Export control book
         $customControls | Export-Csv -Path $controlBookPath -NoTypeInformation
-        Write-Host "✅ Control book saved: $controlBookPath" -ForegroundColor Green
+    Write-Host "Control book saved: $controlBookPath" -ForegroundColor Green
         
         # Export property book
         $customProperties | Export-Csv -Path $propertyBookPath -NoTypeInformation
-        Write-Host "✅ Property book saved: $propertyBookPath" -ForegroundColor Green
+    Write-Host "Property book saved: $propertyBookPath" -ForegroundColor Green
         
         Write-Host ""
-        Write-Host "🎉 CONFIGURATION CREATED SUCCESSFULLY!" -ForegroundColor Green
-        Write-Host "═════════════════════════════════════════" -ForegroundColor Green
+    Write-Host "CONFIGURATION CREATED SUCCESSFULLY!" -ForegroundColor Green
+    Write-Host "═════════════════════════════════════════" -ForegroundColor Green
         Write-Host "Configuration Name: $configName" -ForegroundColor White
         Write-Host "Total Controls: $($customControls.Count)" -ForegroundColor White
         Write-Host "Active Controls: $($customControls.Count)" -ForegroundColor White
         Write-Host ""
-        Write-Host "Your custom configuration '$configName' is now available for testing!" -ForegroundColor Green
-        Write-Host "You can now run validation tests against this configuration." -ForegroundColor Gray
+    Write-Host "Your custom configuration '$configName' is now available for testing!" -ForegroundColor Green
+    Write-Host "You can now run validation tests against this configuration." -ForegroundColor Gray
         
         # Ask if user wants to test the configuration
         Write-Host ""
@@ -863,7 +863,7 @@ function Execute-CreateCustomConfig {
             $testNow = Read-Host "Would you like to test this configuration now? (Y/N)"
             if ($testNow -match '^[Yy]') {
                 Write-Host ""
-                Write-Host "🧪 TESTING CUSTOM CONFIGURATION" -ForegroundColor Cyan
+                Write-Host "TESTING CUSTOM CONFIGURATION" -ForegroundColor Cyan
                 Write-Host "═══════════════════════════════════" -ForegroundColor Cyan
                 
                 # Run the maturity assessment with the new configuration
@@ -888,7 +888,7 @@ function Execute-CreateCustomConfig {
     }
     
     Write-Host ""
-    Write-Host "🔄 Press any key to return to the main menu..." -ForegroundColor Yellow
+    Write-Host "Press any key to return to the main menu..." -ForegroundColor Yellow
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
