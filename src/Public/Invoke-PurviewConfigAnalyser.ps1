@@ -161,44 +161,35 @@ function Show-MainMenu {
     Write-Host "  - Generate detailed reports in CSV and Excel formats" -ForegroundColor Gray
     Write-Host ""
     
-    do {
-    Write-Host "┌─────────────────────────────────────────────────────────────────────────────────┐" -ForegroundColor Cyan
-    Write-Host "│                           MAIN MENU - CHOOSE YOUR ACTION                           │" -ForegroundColor Cyan
-    Write-Host "├─────────────────────────────────────────────────────────────────────────────────┤" -ForegroundColor Cyan
-    Write-Host "│  1. Extract Configuration and Run Tests                                          │" -ForegroundColor White
-    Write-Host "│     -> Connect to your tenant, collect data, then run compliance tests           │" -ForegroundColor Gray
-    Write-Host "│     -> Best for: Complete assessment from start to finish                        │" -ForegroundColor Gray
-    Write-Host "│                                                                                 │" -ForegroundColor Gray
-    Write-Host "│  2. Extract Configuration Only                                                   │" -ForegroundColor White
-    Write-Host "│     -> Connect to your tenant and collect configuration data                     │" -ForegroundColor Gray
-    Write-Host "│     -> Best for: Data collection without immediate testing                       │" -ForegroundColor Gray
-    Write-Host "│                                                                                 │" -ForegroundColor Gray
-    Write-Host "│  3. Run Validation Tests Only                                                    │" -ForegroundColor White
-    Write-Host "│     -> Use existing data to run compliance tests                                 │" -ForegroundColor Gray
-    Write-Host "│     -> Best for: Testing against previously collected data                       │" -ForegroundColor Gray
-    Write-Host "│                                                                                 │" -ForegroundColor Gray
-    Write-Host "│  4. Create Custom Configuration                                                  │" -ForegroundColor White
-    Write-Host "│     -> Build your own control book for organization-specific requirements        │" -ForegroundColor Gray
-    Write-Host "│     -> Best for: Custom compliance frameworks                                    │" -ForegroundColor Gray
-    Write-Host "│                                                                                 │" -ForegroundColor Gray
-    Write-Host "│  5. Exit                                                                        │" -ForegroundColor White
-    Write-Host "│     -> Close the application                                                    │" -ForegroundColor Gray
-    Write-Host "└─────────────────────────────────────────────────────────────────────────────────┘" -ForegroundColor Cyan
+    while ($true) {
+        Write-Host "┌─────────────────────────────────────────────────────────────────────────────────┐" -ForegroundColor Cyan
+        Write-Host "│                           MAIN MENU - CHOOSE YOUR ACTION                           │" -ForegroundColor Cyan
+        Write-Host "├─────────────────────────────────────────────────────────────────────────────────┤" -ForegroundColor Cyan
+        Write-Host "│  1. Extract Configuration and Run Tests                                          │" -ForegroundColor White
+        Write-Host "│     -> Connect to your tenant, collect data, then run compliance tests           │" -ForegroundColor Gray
+        Write-Host "│     -> Best for: Complete assessment from start to finish                        │" -ForegroundColor Gray
+        Write-Host "│                                                                                 │" -ForegroundColor Gray
+        Write-Host "│  2. Extract Configuration Only                                                   │" -ForegroundColor White
+        Write-Host "│     -> Connect to your tenant and collect configuration data                     │" -ForegroundColor Gray
+        Write-Host "│     -> Best for: Data collection without immediate testing                       │" -ForegroundColor Gray
+        Write-Host "│                                                                                 │" -ForegroundColor Gray
+        Write-Host "│  3. Run Validation Tests Only                                                    │" -ForegroundColor White
+        Write-Host "│     -> Use existing data to run compliance tests                                 │" -ForegroundColor Gray
+        Write-Host "│     -> Best for: Testing against previously collected data                       │" -ForegroundColor Gray
+        Write-Host "│                                                                                 │" -ForegroundColor Gray
+        Write-Host "│  4. Create Custom Configuration                                                  │" -ForegroundColor White
+        Write-Host "│     -> Build your own control book for organization-specific requirements        │" -ForegroundColor Gray
+        Write-Host "│     -> Best for: Custom compliance frameworks                                    │" -ForegroundColor Gray
+        Write-Host "│                                                                                 │" -ForegroundColor Gray
+        Write-Host "│  5. Exit                                                                        │" -ForegroundColor White
+        Write-Host "│     -> Close the application                                                    │" -ForegroundColor Gray
+        Write-Host "└─────────────────────────────────────────────────────────────────────────────────┘" -ForegroundColor Cyan
         Write-Host ""
-    Write-Host "Tip: If you're new to this tool, start with option 1 for a complete assessment!" -ForegroundColor Yellow
+        Write-Host "Tip: If you're new to this tool, start with option 1 for a complete assessment!" -ForegroundColor Yellow
         Write-Host ""
-        
-        do {
-            $choice = Read-Host "Please select an option (1-5)"
-            
-            if ($choice -match '^[1-5]$') {
-                break
-            } else {
-                Write-Host "❌ Invalid input. Please enter a number between 1 and 5." -ForegroundColor Red
-            }
-        } while ($true)
-        
-        switch ($choice) {
+        $choice = Read-Host "Please select an option (1-5)"
+        if ($choice -match '^[1-5]$') {
+            switch ($choice) {
             '1' {
                 Write-Host ""
                 Write-Host "EXTRACT CONFIGURATION AND RUN TESTS" -ForegroundColor Yellow
@@ -292,66 +283,66 @@ function Execute-CollectAndTest {
     )
     
     try {
-        Write-Host "🔄 EXTRACT CONFIGURATION & RUN TESTS" -ForegroundColor Cyan
-        Write-Host "═══════════════════════════════════════" -ForegroundColor Cyan
+        Write-Host "EXTRACT CONFIGURATION & RUN TESTS" -ForegroundColor Cyan
+        Write-Host "==================================" -ForegroundColor Cyan
         Write-Host "This will:" -ForegroundColor White
         Write-Host "  1. Connect to your Microsoft 365 tenant" -ForegroundColor Gray
         Write-Host "  2. Extract Purview configuration data" -ForegroundColor Gray
         Write-Host "  3. Present available compliance frameworks for testing" -ForegroundColor Gray
         Write-Host "  4. Generate comprehensive compliance reports" -ForegroundColor Gray
         Write-Host ""
-        
+
         Write-Host "Step 1: Collecting Purview Configuration Data..." -ForegroundColor Yellow
-        
+
         # Use the standalone script which handles authentication and dependencies
         $dataCollectionScript = "$PSScriptRoot\..\Collect-PurviewConfiguration.ps1"
         if (-not (Test-Path $dataCollectionScript)) {
             throw "Data collection script not found at: $dataCollectionScript"
         }
-        
+
         & $dataCollectionScript
-        
+
         # Get the latest OptimizedReport JSON file  
         $configBasePath = "$PSScriptRoot\..\..\config"
         $outputBasePath = "$PSScriptRoot\..\..\output"
-        
+
         $optimizedReportPath = Get-LatestOptimizedReport -RunLogPath "$outputBasePath\file_runlog.txt" -OutputPath $outputBasePath
-        
+
         if (-not $optimizedReportPath -or -not (Test-Path $optimizedReportPath)) {
             throw "OptimizedReport JSON file was not found after data collection"
         }
-        
-        Write-Host "✅ Configuration collection completed successfully!" -ForegroundColor Green
+
+        Write-Host "Configuration collection completed successfully!" -ForegroundColor Green
         $reportSize = (Get-Item $optimizedReportPath).Length / 1MB
-        Write-Host "   Using OptimizedReport: $(Split-Path -Leaf $optimizedReportPath) ($([math]::Round($reportSize, 2)) MB)" -ForegroundColor Gray
+        Write-Host ("   Using OptimizedReport: {0} ({1} MB)" -f (Split-Path -Leaf $optimizedReportPath), [math]::Round($reportSize, 2)) -ForegroundColor Gray
         Write-Host ""
-        
+
         Write-Host "Step 2: Select Validation Test Configuration..." -ForegroundColor Yellow
         $selectedConfig = Show-ValidationConfigurationMenu
-        
+
         if ($selectedConfig -eq 'BackToMainMenu') {
             Show-MainMenu -OutputPath $OutputPath -UserPrincipalName $UserPrincipalName
             return
         }
-        
+
         if ($selectedConfig) {
             Write-Host "Step 3: Running Validation Tests..." -ForegroundColor Yellow
-            
+
             # Use the Run-MaturityAssessment.ps1 script (it's in the src folder)
             $assessmentScript = "$PSScriptRoot\..\Run-MaturityAssessment.ps1"
             if (-not (Test-Path $assessmentScript)) {
                 throw "Assessment script not found at: $assessmentScript"
             }
-            
+
             & $assessmentScript -ConfigurationName $selectedConfig -SkipDataCollection -GenerateExcel
-            
-            Write-Host "✅ Collection and testing completed successfully!" -ForegroundColor Green
+
+            Write-Host "Collection and testing completed successfully!" -ForegroundColor Green
         }
     }
     catch {
-        Write-Host "❌ Operation failed: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host ("Operation failed: {0}" -f $_.Exception.Message) -ForegroundColor Red
         Write-Host "─────────────────────────────────────────────────────────────────────────────────" -ForegroundColor Gray
-        Write-Host "🔄 Press any key to return to the main menu..." -ForegroundColor Yellow
+        Write-Host "Press any key to return to the main menu..." -ForegroundColor Yellow
         $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         Show-MainMenu -OutputPath $OutputPath -UserPrincipalName $UserPrincipalName
     }
