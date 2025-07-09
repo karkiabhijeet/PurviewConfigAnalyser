@@ -192,15 +192,15 @@ function Show-MainMenu {
             switch ($choice) {
             '1' {
                 Write-Host ""
-                Write-Host "EXTRACT CONFIGURATION AND RUN TESTS" -ForegroundColor Yellow
-                Write-Host "====================================" -ForegroundColor Yellow
-                Write-Host "This will:" -ForegroundColor White
-                Write-Host "  1. Connect to your Microsoft 365 tenant" -ForegroundColor Gray
-                Write-Host "  2. Extract Purview configuration data" -ForegroundColor Gray
-                Write-Host "  3. Present available compliance frameworks for testing" -ForegroundColor Gray
-                Write-Host "  4. Generate comprehensive compliance reports" -ForegroundColor Gray
-                Write-Host ""
-                Execute-CollectAndTest -OutputPath $OutputPath -UserPrincipalName $UserPrincipalName
+            Write-Host "EXTRACT CONFIGURATION AND RUN TESTS" -ForegroundColor Yellow
+            Write-Host "====================================" -ForegroundColor Yellow
+            Write-Host "This will:" -ForegroundColor White
+            Write-Host "  1. Connect to your Microsoft 365 tenant" -ForegroundColor Gray
+            Write-Host "  2. Extract Purview configuration data" -ForegroundColor Gray
+            Write-Host "  3. Present available compliance frameworks for testing" -ForegroundColor Gray
+            Write-Host "  4. Generate comprehensive compliance reports" -ForegroundColor Gray
+            Write-Host ""
+            Execute-CollectAndTest -OutputPath $OutputPath -UserPrincipalName $UserPrincipalName
             }
             '2' {
                 Write-Host ""
@@ -283,7 +283,7 @@ function Execute-CollectAndTest {
     )
     
     try {
-        Write-Host "EXTRACT CONFIGURATION & RUN TESTS" -ForegroundColor Cyan
+        Write-Host "EXTRACT CONFIGURATION and RUN TESTS" -ForegroundColor Cyan
         Write-Host "==================================" -ForegroundColor Cyan
         Write-Host "This will:" -ForegroundColor White
         Write-Host "  1. Connect to your Microsoft 365 tenant" -ForegroundColor Gray
@@ -314,7 +314,8 @@ function Execute-CollectAndTest {
 
         Write-Host "Configuration collection completed successfully!" -ForegroundColor Green
         $reportSize = (Get-Item $optimizedReportPath).Length / 1MB
-        Write-Host ("   Using OptimizedReport: {0} ({1} MB)" -f (Split-Path -Leaf $optimizedReportPath), [math]::Round($reportSize, 2)) -ForegroundColor Gray
+        $sizeMB = [math]::Round($reportSize, 2)
+        Write-Host ("   Using OptimizedReport: {0} ({1} MB)" -f (Split-Path -Leaf $optimizedReportPath), $sizeMB) -ForegroundColor Gray
         Write-Host ""
 
         Write-Host "Step 2: Select Validation Test Configuration..." -ForegroundColor Yellow
@@ -363,36 +364,38 @@ function Execute-CollectOnly {
     )
     
     try {
-        Write-Host "📊 EXTRACT CONFIGURATION ONLY" -ForegroundColor Yellow
-        Write-Host "════════════════════════════════" -ForegroundColor Yellow
+        Write-Host "EXTRACT CONFIGURATION ONLY" -ForegroundColor Yellow
+        Write-Host "==========================" -ForegroundColor Yellow
         Write-Host "This will:" -ForegroundColor White
         Write-Host "  1. Connect to your Microsoft 365 tenant" -ForegroundColor Gray
         Write-Host "  2. Extract Purview configuration data" -ForegroundColor Gray
         Write-Host "  3. Save the data for later testing" -ForegroundColor Gray
         Write-Host ""
-        
+
         Write-Host "Collecting Purview Configuration Data..." -ForegroundColor Yellow
-        
+
         # Use the standalone script which handles authentication and dependencies
         $dataCollectionScript = "$PSScriptRoot\..\Collect-PurviewConfiguration.ps1"
         if (-not (Test-Path $dataCollectionScript)) {
             throw "Data collection script not found at: $dataCollectionScript"
         }
-        
+
         & $dataCollectionScript
-        
+
         # Get the latest OptimizedReport JSON file to confirm success
         $outputBasePath = "$PSScriptRoot\..\..\output"
         $optimizedReportPath = Get-LatestOptimizedReport -RunLogPath "$outputBasePath\file_runlog.txt" -OutputPath $outputBasePath
-        
+
         if ($optimizedReportPath -and (Test-Path $optimizedReportPath)) {
-            Write-Host "✅ Configuration collection completed successfully!" -ForegroundColor Green
+            Write-Host "Configuration collection completed successfully!" -ForegroundColor Green
             $reportSize = (Get-Item $optimizedReportPath).Length / 1MB
-            Write-Host "   Configuration saved to: $(Split-Path -Leaf $optimizedReportPath) ($([math]::Round($reportSize, 2)) MB)" -ForegroundColor Gray
+            $sizeMB = [math]::Round($reportSize, 2)
+            Write-Host ("   Configuration saved to: {0} ({1} MB)" -f (Split-Path -Leaf $optimizedReportPath), $sizeMB) -ForegroundColor Gray
         } else {
-            Write-Host "⚠️ Configuration collection completed, but OptimizedReport file not found" -ForegroundColor Yellow
+            Write-Host "Configuration collection completed, but OptimizedReport file not found" -ForegroundColor Yellow
         }
     }
+}
     catch {
         Write-Host "❌ Operation failed: $($_.Exception.Message)" -ForegroundColor Red
         Write-Host "─────────────────────────────────────────────────────────────────────────────────" -ForegroundColor Gray
