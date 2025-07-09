@@ -679,7 +679,7 @@ function Execute-CreateCustomConfig {
                 # Check if configuration already exists
                 $configPath = "$PSScriptRoot\..\..\config\ControlBook_${configName}_Config.csv"
                 if (Test-Path $configPath) {
-                    $overwrite = Read-Host "Configuration '$configName' already exists. Overwrite? (Y/N)"
+                    $overwrite = Read-Host ("Configuration '{0}' already exists. Overwrite? (Y/N)" -f $configName)
                     if ($overwrite -match '^[Yy]') {
                         break
                     }
