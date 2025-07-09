@@ -1,0 +1,45 @@
+# Ignore sensitive files
+*.txt
+**/Value*.txt
+**/credentials*
+**/secrets*
+**/*secret*
+**/*password*
+**/*token*
+
+# Ignore output files
+output/
+*.xlsx
+*.json
+*.xml
+*.zip
+*.log
+
+# Ignore temporary files
+*.tmp
+*.temp
+~$*
+
+# Ignore Windows thumbnail files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Ignore PowerShell profiles
+$PROFILE
+
+# Ignore VS Code settings (optional)
+.vscode/
+
+# Keep important config files but ignore specific ones
+!config/ControlBook_PSPF_Config.csv
+!config/ControlBook_Property_PSPF_Config.csv
+!config/MasterControlBooks/
+
+# Keep example files in archive
+!archive/MaturityModelReportModule/examples/
+!archive/MaturityModelReportModule/config/
+
+# Keep README and documentation
+!README.md
+!PROGRESS_UPDATE.md

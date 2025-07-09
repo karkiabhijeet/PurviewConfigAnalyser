@@ -1,0 +1,29 @@
+<types>
+  <MaturityModel>
+    <Level>
+      <Name>Initial</Name>
+      <Description>Processes are unpredictable and poorly controlled.</Description>
+      <Met>false</Met>
+    </Level>
+    <Level>
+      <Name>Managed</Name>
+      <Description>Processes are planned and executed in accordance with policy.</Description>
+      <Met>false</Met>
+    </Level>
+    <Level>
+      <Name>Defined</Name>
+      <Description>Processes are well characterized and understood.</Description>
+      <Met>false</Met>
+    </Level>
+    <Level>
+      <Name>Quantitatively Managed</Name>
+      <Description>Processes are controlled using statistical and other quantitative techniques.</Description>
+      <Met>false</Met>
+    </Level>
+    <Level>
+      <Name>Optimizing</Name>
+      <Description>Processes are continuously improved to meet relevant current and projected business goals.</Description>
+      <Met>false</Met>
+    </Level>
+  </MaturityModel>
+</types>
