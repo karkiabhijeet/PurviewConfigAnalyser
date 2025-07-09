@@ -27,13 +27,14 @@ The Microsoft Purview Configuration Analyser helps organizations evaluate their 
 
 ## 🚀 Installation
 
+
 ### Option 1: Direct Download from GitHub
 ```powershell
 # Download the repository
 git clone https://github.com/your-org/PurviewConfigAnalyser.git
 cd PurviewConfigAnalyser
 
-# Import the module
+# Import the module (seamless experience)
 Import-Module .\src\PurviewConfigAnalyser.psm1 -Force
 ```
 
@@ -45,6 +46,25 @@ Install-Module -Name PurviewConfigAnalyser
 # Import the module
 Import-Module PurviewConfigAnalyser
 ```
+
+---
+
+## 🚀 Seamless Module-Based Usage for Third Parties
+
+The module is designed for a frictionless experience:
+
+1. **Install or import the module** (see above)
+2. **Run a single command:**
+  ```powershell
+  Invoke-PurviewConfigAnalyser
+  ```
+  - This launches the interactive menu for all assessment, reporting, and custom configuration tasks.
+  - No manual file editing or script modification required.
+3. **All outputs** (CSV, Excel, logs) are generated in the `output/` folder.
+
+**Advanced:** You can also use `Invoke-PurviewConfigAnalyser -Mode ...` for automation or CI/CD.
+
+---
 
 ## 🎮 Getting Started
 
@@ -260,7 +280,17 @@ The included PSPF (Protective Security Policy Framework) configuration demonstra
 - Retention period specifications
 - Compliance with Australian Government requirements
 
+
 ## 📊 Report Generation
+
+### Excel Output Troubleshooting
+
+If you encounter errors saving Excel files (e.g., "Error saving file ..."), ensure:
+- The `output/` directory exists and is writable
+- The output path is a file, not a directory
+- The `ImportExcel` module is installed (the module will auto-install if missing)
+
+If issues persist, run PowerShell as Administrator or check OneDrive sync status.
 
 ### Output Files
 
@@ -418,9 +448,10 @@ For enterprise deployments and custom development:
 
 ## 📈 Quick Reference
 
+
 ### Common Commands
 ```powershell
-# Interactive menu (recommended for beginners)
+# Interactive menu (recommended for all users)
 Invoke-PurviewConfigAnalyser
 
 # Quick PSPF assessment
@@ -432,6 +463,17 @@ Invoke-PurviewConfigAnalyser -Mode CollectOnly
 # Test existing data
 Invoke-PurviewConfigAnalyser -Mode TestOnly -ConfigurationName "PSPF"
 ```
+
+---
+
+## ✅ Seamless Experience for Third Parties
+
+- **No manual setup required**: Just import the module and run `Invoke-PurviewConfigAnalyser`.
+- **All dependencies auto-installed** (ImportExcel, ExchangeOnlineManagement).
+- **All outputs in `output/`**: CSV, Excel, logs.
+- **Custom frameworks supported**: Use the interactive menu to create and test custom compliance frameworks.
+
+For any issues, see the Troubleshooting section above.
 
 ### File Locations
 - **Module**: `src/PurviewConfigAnalyser.psm1`
