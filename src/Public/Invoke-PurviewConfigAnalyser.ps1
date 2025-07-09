@@ -2,32 +2,6 @@ function Invoke-PurviewConfigAnalyser {
     <#
     .SYNOPSIS
         Interactive Microsoft Purview Configuration Analyser - Your gateway to Purview compliance assessment.
-    
-    while ($true) {
-        Write-Host "|---------------- MAIN MENU - CHOOSE YOUR ACTION ----------------|" -ForegroundColor Cyan
-        Write-Host "|  1. Extract Configuration and Run Tests                        |" -ForegroundColor White
-        Write-Host "|     -> Connect to your tenant, collect data, then run tests    |" -ForegroundColor Gray
-        Write-Host "|     -> Best for: Complete assessment from start to finish      |" -ForegroundColor Gray
-        Write-Host "|  2. Extract Configuration Only                                 |" -ForegroundColor White
-        Write-Host "|     -> Connect to your tenant and collect configuration data   |" -ForegroundColor Gray
-        Write-Host "|     -> Best for: Data collection without immediate testing     |" -ForegroundColor Gray
-        Write-Host "|  3. Run Validation Tests Only                                  |" -ForegroundColor White
-        Write-Host "|     -> Use existing data to run compliance tests               |" -ForegroundColor Gray
-        Write-Host "|     -> Best for: Testing against previously collected data     |" -ForegroundColor Gray
-        Write-Host "|  4. Create Custom Configuration                                |" -ForegroundColor White
-        Write-Host "|     -> Build your own control book for org-specific reqs       |" -ForegroundColor Gray
-        Write-Host "|     -> Best for: Custom compliance frameworks                  |" -ForegroundColor Gray
-        Write-Host "|  5. Exit                                                      |" -ForegroundColor White
-        Write-Host "|     -> Close the application                                   |" -ForegroundColor Gray
-        Write-Host "---------------------------------------------------------------|" -ForegroundColor Cyan
-        Write-Host ""
-        Write-Host "Tip: If you're new to this tool, start with option 1 for a complete assessment!" -ForegroundColor Yellow
-        Write-Host ""
-        $choice = Read-Host "Please select an option (1-5)"
-        if ($choice -match '^[1-5]$') {
-            switch ($choice) {
-        Advanced usage: Directly runs data collection and PSPF compliance testing.
-    
     .NOTES
         First-time users: Simply run 'Invoke-PurviewConfigAnalyser' with no parameters!
         The interactive menu will guide you through everything you need to know.
@@ -395,7 +369,6 @@ function Execute-CollectOnly {
             Write-Host "Configuration collection completed, but OptimizedReport file not found" -ForegroundColor Yellow
         }
     }
-}
     catch {
         Write-Host "❌ Operation failed: $($_.Exception.Message)" -ForegroundColor Red
         Write-Host "─────────────────────────────────────────────────────────────────────────────────" -ForegroundColor Gray
@@ -403,6 +376,7 @@ function Execute-CollectOnly {
         $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         Show-MainMenu -OutputPath $OutputPath -UserPrincipalName $UserPrincipalName
     }
+}
 }
 
 function Execute-TestOnly {
@@ -866,32 +840,4 @@ function Execute-CreateCustomConfig {
     $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 }
 
-# Helper function to get latest OptimizedReport JSON file
-function Get-LatestOptimizedReport {
-    param([string]$OutputPath)
-    
-    $runLogPath = Join-Path $OutputPath "file_runlog.txt"
-    
-    if (Test-Path $runLogPath) {
-        $logEntries = Get-Content $runLogPath | Where-Object { $_ -match "OptimizedReport.*\.json" }
-        if ($logEntries) {
-            $latestEntry = $logEntries[-1]
-            # Extract filename using regex - look for .json files
-            if ($latestEntry -match "OptimizedReport[^:]*\.json") {
-                $fileName = $matches[0]
-                $fullPath = Join-Path $OutputPath $fileName
-                if (Test-Path $fullPath) {
-                    return $fullPath
-                }
-            }
-        }
-    }
-    
-    # Fallback: search for OptimizedReport*.json files directly
-    $jsonFiles = Get-ChildItem -Path $OutputPath -Filter "OptimizedReport*.json" | Sort-Object LastWriteTime -Descending
-    if ($jsonFiles) {
-        return $jsonFiles[0].FullName
-    }
-    
-    return $null
-}
+# ...existing code...
