@@ -370,13 +370,12 @@ function Execute-CollectOnly {
         }
     }
     catch {
-        Write-Host "❌ Operation failed: $($_.Exception.Message)" -ForegroundColor Red
-        Write-Host "─────────────────────────────────────────────────────────────────────────────────" -ForegroundColor Gray
-        Write-Host "🔄 Press any key to return to the main menu..." -ForegroundColor Yellow
+    Write-Host "Operation failed: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "----------------------------------------------------------------" -ForegroundColor Gray
+    Write-Host "Press any key to return to the main menu..." -ForegroundColor Yellow
         $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         Show-MainMenu -OutputPath $OutputPath -UserPrincipalName $UserPrincipalName
     }
-}
 }
 
 function Execute-TestOnly {
