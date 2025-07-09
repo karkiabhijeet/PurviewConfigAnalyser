@@ -77,7 +77,7 @@ function Set-DynamicResultPaths {
         
         # Create dynamic file names following the same pattern
         $resultsFileName = "TestResults_${ConfigurationName}_${tenantId}_${timestamp}.csv"
-        $excelFileName = "MaturityAssessment_${ConfigurationName}_${tenantId}_${timestamp}.xlsx"
+            $excelFileName = "TestResults_${ConfigurationName}_${tenantId}_${timestamp}.xlsx"
         
         return @{
             ResultsPath = Join-Path $OutputPath $resultsFileName
@@ -87,11 +87,13 @@ function Set-DynamicResultPaths {
     } else {
         # Fallback to original naming if pattern doesn't match
         $timestamp = Get-Date -Format 'yyyyMMddHHmmss'
-        return @{
-            ResultsPath = Join-Path $OutputPath "TestResults_${ConfigurationName}_${timestamp}.csv"
-            ExcelPath = Join-Path $OutputPath "MaturityAssessment_${ConfigurationName}_${timestamp}.xlsx"
-            TenantId = "unknown"
-        }
+            $resultsFileName = "TestResults_${ConfigurationName}_${timestamp}.csv"
+            $excelFileName = "TestResults_${ConfigurationName}_${timestamp}.xlsx"
+            return @{
+                ResultsPath = Join-Path $OutputPath $resultsFileName
+                ExcelPath = Join-Path $OutputPath $excelFileName
+                TenantId = "unknown"
+            }
     }
 }
 
@@ -194,17 +196,37 @@ Write-Host ""
 
 # Step 4: Generate Excel Report (if requested)
 if ($GenerateExcel) {
+        # Always set Excel path to match CSV, just change extension to .xlsx
+        $excelReportPath = [IO.Path]::ChangeExtension($resultsPath, '.xlsx')
+        $excelDir = Split-Path $excelReportPath -Parent
+        if (-not (Test-Path $excelDir)) {
+            New-Item -Path $excelDir -ItemType Directory -Force | Out-Null
+        }
+        # Prepare Maturity Level Summary data
+        $maturitySummary = @()
+        $maturityGroups = $assessmentResults.Results | Group-Object MaturityLevel
+        foreach ($group in $maturityGroups) {
+            $level = if ($group.Name -eq '' -or $null -eq $group.Name) { '(none)' } else { $group.Name }
+            $total = $group.Group.Count
+            $passing = ($group.Group | Where-Object { $_.Pass -eq $true }).Count
+            $failing = $total - $passing
+            $rate = if ($total -gt 0) { [math]::Round(($passing / $total) * 100, 1) } else { 0 }
+            $maturitySummary += [PSCustomObject]@{
+                'Maturity Level' = $level
+                'Total Controls' = $total
+                'Passing Controls' = $passing
+                'Failing Controls' = $failing
+                'Compliance Rate %' = $rate
+            }
+        }
     Write-Host "Step 4: Generating Excel Report..." -ForegroundColor Yellow
-    
     try {
         # Check if ImportExcel module is available
         if (-not (Get-Module -ListAvailable -Name ImportExcel)) {
             Write-Host "⚠️ ImportExcel module not found. Installing..." -ForegroundColor Yellow
             Install-Module -Name ImportExcel -Force -Scope CurrentUser
         }
-        
         Import-Module ImportExcel -Force
-        
         # Create Excel workbook with multiple sheets
         $excelParams = @{
             Path = $excelReportPath
@@ -213,8 +235,11 @@ if ($GenerateExcel) {
             BoldTopRow = $true
             FreezeTopRow = $true
         }
-        
+        # Maturity Level Summary sheet (now after $excelParams is set)
+        $maturitySummary | Export-Excel @excelParams -WorksheetName 'Maturity Level Summary'
         # Summary sheet
+        $uniqueMaturityLevels = ($assessmentResults.Results | Where-Object { $_.MaturityLevel -ne $null -and $_.MaturityLevel -ne '' } | Select-Object -ExpandProperty MaturityLevel -Unique)
+        $numMaturityLevels = ($uniqueMaturityLevels | Measure-Object).Count
         $summary = [PSCustomObject]@{
             "Assessment Date" = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
             "Configuration" = $ConfigurationName
@@ -223,25 +248,31 @@ if ($GenerateExcel) {
             "Failing Controls" = $assessmentResults.FailingControls
             "Compliance Rate %" = $assessmentResults.ComplianceRate
             "Data Source" = $optimizedReportPath
+            "Maturity Levels Present" = if ($numMaturityLevels -gt 1) { $uniqueMaturityLevels -join ", " } else { $uniqueMaturityLevels }
         }
-        
         $summary | Export-Excel @excelParams -WorksheetName "Summary"
-        
-        # Detailed results sheet
-        $assessmentResults.Results | Export-Excel @excelParams -WorksheetName "Detailed Results"
-        
+        # Detailed results sheet (ensure MaturityLevel column is present)
+        $detailedResults = $assessmentResults.Results
+        if (-not ($detailedResults | Get-Member -Name 'MaturityLevel')) {
+            $detailedResults = $detailedResults | Select-Object *, @{Name='MaturityLevel';Expression={''}}
+        }
+        $detailedResults | Export-Excel @excelParams -WorksheetName "Detailed Results"
         # Failed controls sheet
         $failedControls = $assessmentResults.Results | Where-Object { $_.Pass -eq $false }
         if ($failedControls) {
+            if (-not ($failedControls | Get-Member -Name 'MaturityLevel')) {
+                $failedControls = $failedControls | Select-Object *, @{Name='MaturityLevel';Expression={''}}
+            }
             $failedControls | Export-Excel @excelParams -WorksheetName "Failed Controls"
         }
-        
         # Passed controls sheet
         $passedControls = $assessmentResults.Results | Where-Object { $_.Pass -eq $true }
         if ($passedControls) {
+            if (-not ($passedControls | Get-Member -Name 'MaturityLevel')) {
+                $passedControls = $passedControls | Select-Object *, @{Name='MaturityLevel';Expression={''}}
+            }
             $passedControls | Export-Excel @excelParams -WorksheetName "Passed Controls"
         }
-        
         Write-Host "✅ Excel report generated successfully" -ForegroundColor Green
         Write-Host "   Report saved to: $excelReportPath" -ForegroundColor Gray
     }
@@ -262,6 +293,15 @@ Write-Host "Compliance Rate: $($assessmentResults.ComplianceRate)%" -ForegroundC
 Write-Host "Total Controls: $($assessmentResults.TotalControls)" -ForegroundColor White
 Write-Host "Passing: $($assessmentResults.PassingControls)" -ForegroundColor Green
 Write-Host "Failing: $($assessmentResults.FailingControls)" -ForegroundColor Red
+$uniqueMaturityLevels = ($assessmentResults.Results | Where-Object { $_.MaturityLevel -ne $null -and $_.MaturityLevel -ne '' } | Select-Object -ExpandProperty MaturityLevel -Unique)
+$numMaturityLevels = ($uniqueMaturityLevels | Measure-Object).Count
+if ($numMaturityLevels -gt 1) {
+    Write-Host ("Maturity Levels Present: " + ($uniqueMaturityLevels -join ", ")) -ForegroundColor White
+} elseif ($numMaturityLevels -eq 1) {
+    Write-Host ("Maturity Level: " + $uniqueMaturityLevels) -ForegroundColor White
+} else {
+    Write-Host "Maturity Level: (none)" -ForegroundColor White
+}
 Write-Host ""
 Write-Host "Output Files:" -ForegroundColor White
 Write-Host "- CSV Results: $resultsPath" -ForegroundColor Gray
@@ -270,6 +310,20 @@ if ($GenerateExcel -and (Test-Path $excelReportPath)) {
 }
 Write-Host ""
 Write-Host "End Time: $(Get-Date)" -ForegroundColor White
+
+# Print Maturity Level Summary in terminal
+$maturityGroups = $assessmentResults.Results | Group-Object MaturityLevel
+Write-Host "" -ForegroundColor White
+Write-Host "Maturity Level Summary:" -ForegroundColor Cyan
+Write-Host ("{0,-15} {1,15} {2,18} {3,16} {4,18}" -f 'Maturity Level','Total Controls','Passing Controls','Failing Controls','Compliance Rate %') -ForegroundColor White
+foreach ($group in $maturityGroups) {
+    $level = if ($group.Name -eq '' -or $null -eq $group.Name) { '(none)' } else { $group.Name }
+    $total = $group.Group.Count
+    $passing = ($group.Group | Where-Object { $_.Pass -eq $true }).Count
+    $failing = $total - $passing
+    $rate = if ($total -gt 0) { [math]::Round(($passing / $total) * 100, 1) } else { 0 }
+    Write-Host ("{0,-15} {1,15} {2,18} {3,16} {4,18}" -f $level, $total, $passing, $failing, $rate) -ForegroundColor Gray
+}
 
 # Return results for potential further processing
 return $assessmentResults
