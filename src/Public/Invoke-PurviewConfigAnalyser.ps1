@@ -3,43 +3,29 @@ function Invoke-PurviewConfigAnalyser {
     .SYNOPSIS
         Interactive Microsoft Purview Configuration Analyser - Your gateway to Purview compliance assessment.
     
-    .DESCRIPTION
-        This function provides an intuitive, user-friendly interface for managing Microsoft Purview 
-        configuration analysis. It offers an interactive menu system that guides users through:
-        
-        • Extracting Purview configuration data from your tenant
-        • Running compliance validation tests against industry standards
-        • Creating custom control book configurations
-        • Generating comprehensive reports
-        
-        No prior knowledge of modes or parameters required - just run the command and follow the prompts!
-    
-    .PARAMETER Mode
-        [OPTIONAL] For advanced users: Directly specify operation mode without interactive menu.
-        Valid values: 'CollectAndTest', 'CollectOnly', 'TestOnly'
-        If not specified, an interactive menu will guide you through the options.
-    
-    .PARAMETER ConfigurationName
-        [OPTIONAL] For advanced users: Specify which compliance framework to test against (e.g., 'PSPF').
-        If not specified, you'll be prompted to select from available configurations.
-    
-    .PARAMETER OutputPath
-        [OPTIONAL] Custom output directory for generated reports.
-        If not specified, reports will be saved to your user profile under 'PurviewConfigAnalyser\Output'.
-    
-    .PARAMETER UserPrincipalName
-        [OPTIONAL] Your Microsoft 365 User Principal Name for authentication.
-        If not specified, you'll be prompted to enter it during the connection process.
-    
-    .EXAMPLE
-        Invoke-PurviewConfigAnalyser
-        
-        Launches the interactive menu system - perfect for first-time users!
-        The menu will guide you through all available options with clear explanations.
-    
-    .EXAMPLE
-        Invoke-PurviewConfigAnalyser -Mode CollectAndTest -ConfigurationName "PSPF"
-        
+    while ($true) {
+        Write-Host "|---------------- MAIN MENU - CHOOSE YOUR ACTION ----------------|" -ForegroundColor Cyan
+        Write-Host "|  1. Extract Configuration and Run Tests                        |" -ForegroundColor White
+        Write-Host "|     -> Connect to your tenant, collect data, then run tests    |" -ForegroundColor Gray
+        Write-Host "|     -> Best for: Complete assessment from start to finish      |" -ForegroundColor Gray
+        Write-Host "|  2. Extract Configuration Only                                 |" -ForegroundColor White
+        Write-Host "|     -> Connect to your tenant and collect configuration data   |" -ForegroundColor Gray
+        Write-Host "|     -> Best for: Data collection without immediate testing     |" -ForegroundColor Gray
+        Write-Host "|  3. Run Validation Tests Only                                  |" -ForegroundColor White
+        Write-Host "|     -> Use existing data to run compliance tests               |" -ForegroundColor Gray
+        Write-Host "|     -> Best for: Testing against previously collected data     |" -ForegroundColor Gray
+        Write-Host "|  4. Create Custom Configuration                                |" -ForegroundColor White
+        Write-Host "|     -> Build your own control book for org-specific reqs       |" -ForegroundColor Gray
+        Write-Host "|     -> Best for: Custom compliance frameworks                  |" -ForegroundColor Gray
+        Write-Host "|  5. Exit                                                      |" -ForegroundColor White
+        Write-Host "|     -> Close the application                                   |" -ForegroundColor Gray
+        Write-Host "---------------------------------------------------------------|" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "Tip: If you're new to this tool, start with option 1 for a complete assessment!" -ForegroundColor Yellow
+        Write-Host ""
+        $choice = Read-Host "Please select an option (1-5)"
+        if ($choice -match '^[1-5]$') {
+            switch ($choice) {
         Advanced usage: Directly runs data collection and PSPF compliance testing.
     
     .NOTES
@@ -276,15 +262,19 @@ function Show-MainMenu {
             }
         }
         
-        if ($choice -ne '5') {
-            Write-Host ""
-            Write-Host "─────────────────────────────────────────────────────────────────────────────────" -ForegroundColor DarkGray
-            Write-Host "🔄 Press any key to return to the main menu..." -ForegroundColor Cyan
-            $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-            Write-Host ""
+            if ($choice -ne '5') {
+                Write-Host ""
+                Write-Host "---------------------------------------------------------------" -ForegroundColor DarkGray
+                Write-Host "Press any key to return to the main menu..." -ForegroundColor Cyan
+                $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                Write-Host ""
+            } else {
+                break
+            }
+        } else {
+            Write-Host "Invalid input. Please enter a number between 1 and 5." -ForegroundColor Red
         }
-        
-    } while ($choice -ne '5')
+    }
 }
 
 function Execute-CollectAndTest {
