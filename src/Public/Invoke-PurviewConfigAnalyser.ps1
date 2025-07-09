@@ -176,28 +176,28 @@ function Show-MainMenu {
     Write-Host ""
     
     do {
-        Write-Host "┌─────────────────────────────────────────────────────────────────────────────────┐" -ForegroundColor Cyan
-        Write-Host "│                           MAIN MENU - CHOOSE YOUR ACTION                           │" -ForegroundColor Cyan
-        Write-Host "├─────────────────────────────────────────────────────────────────────────────────┤" -ForegroundColor Cyan
-        Write-Host "│  1. 🔄 Extract Configuration & Run Tests                                          │" -ForegroundColor White
-        Write-Host "│     → Connect to your tenant, collect data, then run compliance tests             │" -ForegroundColor Gray
-        Write-Host "│     → Best for: Complete assessment from start to finish                          │" -ForegroundColor Gray
-        Write-Host "│                                                                                     │" -ForegroundColor Gray
-        Write-Host "│  2. 📊 Extract Configuration Only                                                 │" -ForegroundColor White
-        Write-Host "│     → Connect to your tenant and collect configuration data                        │" -ForegroundColor Gray
-        Write-Host "│     → Best for: Data collection without immediate testing                          │" -ForegroundColor Gray
-        Write-Host "│                                                                                     │" -ForegroundColor Gray
-        Write-Host "│  3. ✅ Run Validation Tests Only                                                  │" -ForegroundColor White
-        Write-Host "│     → Use existing data to run compliance tests                                    │" -ForegroundColor Gray
-        Write-Host "│     → Best for: Testing against previously collected data                          │" -ForegroundColor Gray
-        Write-Host "│                                                                                     │" -ForegroundColor Gray
-        Write-Host "│  4. ⚙️ Create Custom Configuration                                                 │" -ForegroundColor White
-        Write-Host "│     → Build your own control book for organization-specific requirements          │" -ForegroundColor Gray
-        Write-Host "│     → Best for: Custom compliance frameworks                                       │" -ForegroundColor Gray
-        Write-Host "│                                                                                     │" -ForegroundColor Gray
-        Write-Host "│  5. 🚪 Exit                                                                        │" -ForegroundColor White
-        Write-Host "│     → Close the application                                                         │" -ForegroundColor Gray
-        Write-Host "└─────────────────────────────────────────────────────────────────────────────────┘" -ForegroundColor Cyan
+    Write-Host "┌─────────────────────────────────────────────────────────────────────────────────┐" -ForegroundColor Cyan
+    Write-Host "│                           MAIN MENU - CHOOSE YOUR ACTION                           │" -ForegroundColor Cyan
+    Write-Host "├─────────────────────────────────────────────────────────────────────────────────┤" -ForegroundColor Cyan
+    Write-Host "│  1. Extract Configuration and Run Tests                                          │" -ForegroundColor White
+    Write-Host "│     -> Connect to your tenant, collect data, then run compliance tests           │" -ForegroundColor Gray
+    Write-Host "│     -> Best for: Complete assessment from start to finish                        │" -ForegroundColor Gray
+    Write-Host "│                                                                                 │" -ForegroundColor Gray
+    Write-Host "│  2. Extract Configuration Only                                                   │" -ForegroundColor White
+    Write-Host "│     -> Connect to your tenant and collect configuration data                     │" -ForegroundColor Gray
+    Write-Host "│     -> Best for: Data collection without immediate testing                       │" -ForegroundColor Gray
+    Write-Host "│                                                                                 │" -ForegroundColor Gray
+    Write-Host "│  3. Run Validation Tests Only                                                    │" -ForegroundColor White
+    Write-Host "│     -> Use existing data to run compliance tests                                 │" -ForegroundColor Gray
+    Write-Host "│     -> Best for: Testing against previously collected data                       │" -ForegroundColor Gray
+    Write-Host "│                                                                                 │" -ForegroundColor Gray
+    Write-Host "│  4. Create Custom Configuration                                                  │" -ForegroundColor White
+    Write-Host "│     -> Build your own control book for organization-specific requirements        │" -ForegroundColor Gray
+    Write-Host "│     -> Best for: Custom compliance frameworks                                    │" -ForegroundColor Gray
+    Write-Host "│                                                                                 │" -ForegroundColor Gray
+    Write-Host "│  5. Exit                                                                        │" -ForegroundColor White
+    Write-Host "│     -> Close the application                                                    │" -ForegroundColor Gray
+    Write-Host "└─────────────────────────────────────────────────────────────────────────────────┘" -ForegroundColor Cyan
         Write-Host ""
         Write-Host "💡 Tip: If you're new to this tool, start with option 1 for a complete assessment!" -ForegroundColor Yellow
         Write-Host ""
@@ -215,8 +215,8 @@ function Show-MainMenu {
         switch ($choice) {
             '1' {
                 Write-Host ""
-                Write-Host "🔄 EXTRACT CONFIGURATION & RUN TESTS" -ForegroundColor Yellow
-                Write-Host "═══════════════════════════════════════" -ForegroundColor Yellow
+                Write-Host "EXTRACT CONFIGURATION AND RUN TESTS" -ForegroundColor Yellow
+                Write-Host "====================================" -ForegroundColor Yellow
                 Write-Host "This will:" -ForegroundColor White
                 Write-Host "  1. Connect to your Microsoft 365 tenant" -ForegroundColor Gray
                 Write-Host "  2. Extract Purview configuration data" -ForegroundColor Gray
@@ -227,8 +227,8 @@ function Show-MainMenu {
             }
             '2' {
                 Write-Host ""
-                Write-Host "📊 EXTRACT CONFIGURATION ONLY" -ForegroundColor Yellow
-                Write-Host "═══════════════════════════════" -ForegroundColor Yellow
+                Write-Host "EXTRACT CONFIGURATION ONLY" -ForegroundColor Yellow
+                Write-Host "==========================" -ForegroundColor Yellow
                 Write-Host "This will:" -ForegroundColor White
                 Write-Host "  1. Connect to your Microsoft 365 tenant" -ForegroundColor Gray
                 Write-Host "  2. Extract Purview configuration data" -ForegroundColor Gray
@@ -238,8 +238,8 @@ function Show-MainMenu {
             }
             '3' {
                 Write-Host ""
-                Write-Host "✅ RUN VALIDATION TESTS ONLY" -ForegroundColor Yellow
-                Write-Host "═══════════════════════════════" -ForegroundColor Yellow
+                Write-Host "RUN VALIDATION TESTS ONLY" -ForegroundColor Yellow
+                Write-Host "=========================" -ForegroundColor Yellow
                 Write-Host "This will:" -ForegroundColor White
                 Write-Host "  1. Use existing configuration data" -ForegroundColor Gray
                 Write-Host "  2. Present available compliance frameworks" -ForegroundColor Gray
@@ -249,8 +249,8 @@ function Show-MainMenu {
             }
             '4' {
                 Write-Host ""
-                Write-Host "⚙️ CREATE CUSTOM CONFIGURATION" -ForegroundColor Yellow
-                Write-Host "═══════════════════════════════" -ForegroundColor Yellow
+                Write-Host "CREATE CUSTOM CONFIGURATION" -ForegroundColor Yellow
+                Write-Host "===========================" -ForegroundColor Yellow
                 Write-Host "This will:" -ForegroundColor White
                 Write-Host "  1. Launch the Windows Forms GUI to create a custom control book" -ForegroundColor Gray
                 Write-Host "  2. Allow you to define organization-specific controls" -ForegroundColor Gray
@@ -262,13 +262,13 @@ function Show-MainMenu {
                     . $guiScript
                     Show-PurviewConfigAnalyserGUI
                 } else {
-                    Write-Host "❌ GUI script not found at: $guiScript" -ForegroundColor Red
+                    Write-Host "GUI script not found at: $guiScript" -ForegroundColor Red
                 }
             }
             '5' {
                 Write-Host ""
-                Write-Host "🚪 EXITING APPLICATION" -ForegroundColor Green
-                Write-Host "═════════════════════" -ForegroundColor Green
+                Write-Host "EXITING APPLICATION" -ForegroundColor Green
+                Write-Host "===================" -ForegroundColor Green
                 Write-Host "Thank you for using the Microsoft Purview Configuration Analyser!" -ForegroundColor Green
                 Write-Host "Your compliance journey continues..." -ForegroundColor Gray
                 Write-Host ""
