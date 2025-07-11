@@ -135,20 +135,92 @@ function Test-PurviewCompliance {
                 
                 $Summary | Export-Excel @ExcelParams -WorksheetName "Summary"
                 
-                # Detailed results sheet
-                $Results | Export-Excel @ExcelParams -WorksheetName "Detailed Results"
-                
-                # Failed controls sheet
-                $FailedControls = $Results | Where-Object { $_.Pass -eq $false }
-                if ($FailedControls) {
-                    $FailedControls | Export-Excel @ExcelParams -WorksheetName "Failed Controls"
+                # Maturity Level Summary sheet - enriched with descriptions
+                $MaturityLevelSummary = @()
+                $maturityGroups = $Results | Group-Object MaturityLevel
+                foreach ($group in $maturityGroups) {
+                    $level = if ($group.Name -eq '' -or $null -eq $group.Name) { '(none)' } else { $group.Name }
+                    $total = $group.Group.Count
+                    $passing = ($group.Group | Where-Object { $_.Pass -eq $true }).Count
+                    $failing = $total - $passing
+                    $rate = if ($total -gt 0) { [math]::Round(($passing / $total) * 100, 1) } else { 0 }
+                    
+                    # Enhanced maturity level descriptions
+                    $description = switch ($level.ToLower()) {
+                        "1" { "Initial Stage - Basic security controls and foundational data protection measures" }
+                        "2" { "Intermediate Stage - Enhanced security policies with automated enforcement and monitoring" }
+                        "3" { "Advanced Stage - Comprehensive data security with AI-driven protection and full compliance" }
+                        "basic" { "Basic Level - Fundamental security controls implementation" }
+                        "intermediate" { "Intermediate Level - Enhanced security with policy automation" }
+                        "advanced" { "Advanced Level - Sophisticated security with intelligent protection" }
+                        "(none)" { "Unclassified - Controls without assigned maturity levels" }
+                        default { "Custom Level - Organization-specific maturity classification: $level" }
+                    }
+                    
+                    $status = if ($rate -ge 90) { "Excellent" } 
+                             elseif ($rate -ge 80) { "Good" }
+                             elseif ($rate -ge 70) { "Acceptable" }
+                             elseif ($rate -ge 60) { "Needs Improvement" }
+                             else { "Critical" }
+                    
+                    $MaturityLevelSummary += [PSCustomObject]@{
+                        'Maturity Level' = $level
+                        'Description' = $description
+                        'Total Controls' = $total
+                        'Passing Controls' = $passing
+                        'Failing Controls' = $failing
+                        'Compliance Rate %' = $rate
+                        'Status' = $status
+                        'Priority' = if ($level -match "^[123]$") { 
+                            switch ($level) { "1" { "High - Foundation" }; "2" { "Medium - Enhancement" }; "3" { "Low - Optimization" } }
+                        } else { "Medium" }
+                    }
                 }
                 
-                # Passed controls sheet
-                $PassedControls = $Results | Where-Object { $_.Pass -eq $true }
-                if ($PassedControls) {
-                    $PassedControls | Export-Excel @ExcelParams -WorksheetName "Passed Controls"
+                $MaturityLevelSummary | Export-Excel @ExcelParams -WorksheetName "Maturity Level Summary"
+                
+                # Control Summary sheet - aggregated by Control ID
+                $ControlSummary = $Results | Group-Object -Property ControlID | ForEach-Object {
+                    $controlGroup = $_.Group
+                    $controlPassed = $controlGroup | Where-Object { $_.Pass -eq $true }
+                    $controlFailed = $controlGroup | Where-Object { $_.Pass -eq $false }
+                    
+                    # A control is considered failed if ANY of its properties fail
+                    $overallResult = if ($controlFailed.Count -gt 0) { "Fail" } else { "Pass" }
+                    
+                    # Concatenate all comments from properties for this control
+                    $allComments = @()
+                    foreach ($property in $controlGroup) {
+                        if ($property.Comments -and $property.Comments.Trim() -ne "") {
+                            $propertyComment = "$($property.Properties): $($property.Comments)"
+                            $allComments += $propertyComment
+                        }
+                    }
+                    $combinedComments = if ($allComments.Count -gt 0) { $allComments -join " | " } else { "" }
+                    
+                    [PSCustomObject]@{
+                        "Capability" = $controlGroup[0].Capability
+                        "Control ID" = $controlGroup[0].ControlID
+                        "Control" = $controlGroup[0].Control
+                        "Maturity Level" = $controlGroup[0].MaturityLevel
+                        "Total Properties" = $controlGroup.Count
+                        "Properties Passed" = $controlPassed.Count
+                        "Properties Failed" = $controlFailed.Count
+                        "Result" = $overallResult
+                        "Comments" = $combinedComments
+                        "Configuration" = $controlGroup[0].ConfigurationName
+                    }
                 }
+                
+                $ControlSummary | Export-Excel @ExcelParams -WorksheetName "Control Summary"
+                
+                # Detailed results sheet with improved formatting
+                $DetailedResults = $Results | ForEach-Object {
+                    $_ | Add-Member -MemberType NoteProperty -Name "Result" -Value $(if ($_.Pass -eq $true) { "Pass" } else { "Fail" }) -Force
+                    $_ | Select-Object -Property * -ExcludeProperty Pass
+                }
+                
+                $DetailedResults | Export-Excel @ExcelParams -WorksheetName "Detailed Results"
                 
                 Write-Host "✅ Excel report generated: $ExcelReportPath" -ForegroundColor Green
                 $AssessmentResults.ExcelReportPath = $ExcelReportPath

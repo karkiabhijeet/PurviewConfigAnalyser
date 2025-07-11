@@ -1,3 +1,327 @@
+# DLP: Evaluate DLP Compliance Policy property
+function Test-GetDlpCompliancePolicyProperty {
+    param($Result, $PropertyParts, $ExpectedValue, $OptimizedReport)
+    $policies = $OptimizedReport.GetDlpCompliancePolicy
+    if (-not $policies) {
+        $Result.Comments = "No DLP policies found in report"
+        return $Result
+    }
+    $propertyName = $PropertyParts[1].Trim()
+    switch ($propertyName) {
+        "Mode" {
+            $found = $policies | Where-Object { $_.Mode -eq $ExpectedValue }
+            if ($found) {
+                $Result.Pass = $true
+                $Result.Comments = "Found DLP policy with Mode: $ExpectedValue"
+            } else {
+                $Result.Comments = "No DLP policy found with Mode: $ExpectedValue"
+            }
+        }
+        default {
+            $Result.Comments = "Unknown DLP policy property: $propertyName"
+        }
+    }
+    return $Result
+}
+
+# DLP: Evaluate DLP Compliance Rule property
+function Test-GetDlpComplianceRuleProperty {
+    param($Result, $PropertyParts, $ExpectedValue, $OptimizedReport)
+    $rules = $OptimizedReport.GetDlpComplianceRule
+    $policies = $OptimizedReport.GetDlpCompliancePolicy
+    
+    if (-not $rules) {
+        $Result.Comments = "No DLP rules found in report"
+        return $Result
+    }
+
+    # Add state to track which rule we're working with for this control
+    if (-not $script:CurrentDlpControlRules) {
+        $script:CurrentDlpControlRules = @{}
+    }
+    $controlId = $Result.ControlID
+
+    # Filter rules to only those from enabled policies
+    $enabledRules = @()
+    $simulationRules = @()
+    
+    foreach ($rule in $rules) {
+        if ($rule.PSObject.Properties.Name -contains "Policy") {
+            $parentPolicy = $policies | Where-Object { $_.Guid -eq $rule.Policy }
+            if ($parentPolicy) {
+                if ($parentPolicy.Mode -eq "Enable") {
+                    $enabledRules += $rule
+                } elseif ($parentPolicy.Mode -like "Test*") {
+                    $simulationRules += $rule
+                }
+            }
+        }
+    }
+
+    $propertyName = $PropertyParts[1].Trim()
+    
+    # Handle AdvancedRule properties with >> syntax
+    if ($propertyName -like "AdvancedRule*") {
+        # Parse AdvancedRule properties (e.g., "AdvancedRule >> Labels")
+        $advancedRuleParts = $propertyName -split ' >> '
+        if ($advancedRuleParts.Count -ge 2) {
+            $deepProp = $advancedRuleParts[1].Trim()
+            $deepVal = $ExpectedValue
+            $found = $false
+            $foundRule = $null
+            
+            # Check if we already have a matched rule for this control
+            if ($script:CurrentDlpControlRules.ContainsKey($controlId)) {
+                $previousRule = $script:CurrentDlpControlRules[$controlId]
+                if ($previousRule.PSObject.Properties.Name -contains "AdvancedRule" -and $previousRule.AdvancedRule) {
+                    try {
+                        $adv = $previousRule.AdvancedRule | ConvertFrom-Json -ErrorAction Stop
+                        $names = Get-DlpDeepProperty -Node $adv -Target $deepProp
+                        if ($deepVal -eq 'Not Null') {
+                            if ($names.Count -gt 0) { 
+                                $Result.Pass = $true
+                                $Result.Comments = "Previously matched DLP rule has $deepProp configured in AdvancedRule"
+                                return $Result
+                            }
+                        } else {
+                            if ($names -contains $deepVal) { 
+                                $Result.Pass = $true
+                                $Result.Comments = "Previously matched DLP rule has $deepProp = $deepVal in AdvancedRule"
+                                return $Result
+                            }
+                        }
+                    } catch {
+                        # Continue to search other rules
+                    }
+                }
+            }
+            
+            # Search enabled rules for AdvancedRule content
+            foreach ($rule in $enabledRules) {
+                if ($rule.PSObject.Properties.Name -contains "AdvancedRule" -and $rule.AdvancedRule) {
+                    try {
+                        $adv = $rule.AdvancedRule | ConvertFrom-Json -ErrorAction Stop
+                        $names = Get-DlpDeepProperty -Node $adv -Target $deepProp
+                        if ($deepVal -eq 'Not Null') {
+                            if ($names.Count -gt 0) { 
+                                $found = $true
+                                $foundRule = $rule
+                                break
+                            }
+                        } else {
+                            if ($names -contains $deepVal) { 
+                                $found = $true
+                                $foundRule = $rule
+                                break
+                            }
+                        }
+                    } catch {
+                        # Continue to next rule
+                    }
+                }
+            }
+            
+            if ($found) {
+                $script:CurrentDlpControlRules[$controlId] = $foundRule
+                $Result.Pass = $true
+                if ($deepVal -eq 'Not Null') {
+                    $Result.Comments = "Found DLP rule with $deepProp configured in AdvancedRule"
+                } else {
+                    $Result.Comments = "Found DLP rule with $deepProp = $deepVal in AdvancedRule"
+                }
+            } else {
+                # Check simulation rules for informational comments
+                $simulationFound = $false
+                foreach ($rule in $simulationRules) {
+                    if ($rule.PSObject.Properties.Name -contains "AdvancedRule" -and $rule.AdvancedRule) {
+                        try {
+                            $adv = $rule.AdvancedRule | ConvertFrom-Json -ErrorAction Stop
+                            $names = Get-DlpDeepProperty -Node $adv -Target $deepProp
+                            if ($deepVal -eq 'Not Null') {
+                                if ($names.Count -gt 0) { $simulationFound = $true; break }
+                            } else {
+                                if ($names -contains $deepVal) { $simulationFound = $true; break }
+                            }
+                        } catch {}
+                    }
+                }
+                
+                if ($simulationFound) {
+                    $Result.Comments = "No enabled DLP rule found with $deepProp in AdvancedRule. Found matching rule(s) in simulation/test mode"
+                } else {
+                    $Result.Comments = "No DLP rule found with $deepProp in AdvancedRule"
+                }
+            }
+            return $Result
+        } else {
+            $Result.Comments = "Invalid AdvancedRule property path. Expected format: AdvancedRule >> PropertyName"
+            return $Result
+        }
+    }
+    
+    switch ($propertyName) {
+        "Workload" {
+            if ($script:CurrentDlpControlRules.ContainsKey($controlId)) {
+                # Check if the previously matched rule has this workload
+                $previousRule = $script:CurrentDlpControlRules[$controlId]
+                if ($previousRule.PSObject.Properties.Name -contains "Workload") {
+                    # Handle workload as either array or comma-separated string
+                    $workloads = @()
+                    if ($previousRule.Workload -is [array]) {
+                        $workloads = $previousRule.Workload
+                    } else {
+                        $workloads = $previousRule.Workload -split ',' | ForEach-Object { $_.Trim() }
+                    }
+                    
+                    if ($workloads -contains $ExpectedValue) {
+                        $Result.Pass = $true
+                        $Result.Comments = "Previously matched DLP rule has workload: $ExpectedValue"
+                        return $Result
+                    }
+                }
+            }
+
+            # Look for a rule in enabled policies that has the required workload
+            foreach ($rule in $enabledRules) {
+                if ($rule.PSObject.Properties.Name -contains "Workload") {
+                    # Handle workload as either array or comma-separated string
+                    $workloads = @()
+                    if ($rule.Workload -is [array]) {
+                        $workloads = $rule.Workload
+                    } else {
+                        $workloads = $rule.Workload -split ',' | ForEach-Object { $_.Trim() }
+                    }
+                    
+                    if ($workloads -contains $ExpectedValue) {
+                        # Store this rule for the control ID
+                        $script:CurrentDlpControlRules[$controlId] = $rule
+                        $Result.Pass = $true
+                        $Result.Comments = "Found DLP rule with workload: $ExpectedValue in enabled policy"
+                        return $Result
+                    }
+                }
+            }
+            
+            # Check simulation rules for informational comments
+            $simulationMatches = @()
+            foreach ($rule in $simulationRules) {
+                if ($rule.PSObject.Properties.Name -contains "Workload") {
+                    # Handle workload as either array or comma-separated string
+                    $workloads = @()
+                    if ($rule.Workload -is [array]) {
+                        $workloads = $rule.Workload
+                    } else {
+                        $workloads = $rule.Workload -split ',' | ForEach-Object { $_.Trim() }
+                    }
+                    
+                    if ($workloads -contains $ExpectedValue) {
+                        $simulationMatches += $rule
+                    }
+                }
+            }
+            
+            if ($simulationMatches.Count -gt 0) {
+                $Result.Comments = "No enabled DLP rule found with workload: $ExpectedValue. Found $($simulationMatches.Count) rule(s) in simulation/test mode"
+            } else {
+                $Result.Comments = "No DLP rule found with workload: $ExpectedValue"
+            }
+        }
+        "PrependSubject" {
+            if ($script:CurrentDlpControlRules.ContainsKey($controlId)) {
+                # Check if the previously matched rule has PrependSubject
+                $previousRule = $script:CurrentDlpControlRules[$controlId]
+                if ($previousRule.PSObject.Properties.Name -contains "PrependSubject" -and $previousRule.PrependSubject) {
+                    $Result.Pass = $true
+                    $Result.Comments = "Previously matched DLP rule has PrependSubject configured"
+                    return $Result
+                }
+            }
+
+            # Look for a rule in enabled policies that has PrependSubject configured
+            foreach ($rule in $enabledRules) {
+                if ($rule.PSObject.Properties.Name -contains "PrependSubject" -and $rule.PrependSubject) {
+                    # Store this rule for the control ID
+                    $script:CurrentDlpControlRules[$controlId] = $rule
+                    $Result.Pass = $true
+                    $Result.Comments = "Found DLP rule with PrependSubject configured in enabled policy"
+                    return $Result
+                }
+            }
+            
+            # Check simulation rules for informational comments
+            $simulationMatches = $simulationRules | Where-Object { 
+                $_.PSObject.Properties.Name -contains "PrependSubject" -and $_.PrependSubject 
+            }
+            
+            if ($simulationMatches.Count -gt 0) {
+                $Result.Comments = "No enabled DLP rule found with PrependSubject configured. Found $($simulationMatches.Count) rule(s) in simulation/test mode"
+            } else {
+                $Result.Comments = "No DLP rule found with PrependSubject configured"
+            }
+        }
+        "SetHeader" {
+            if ($script:CurrentDlpControlRules.ContainsKey($controlId)) {
+                # Check if the previously matched rule has SetHeader
+                $previousRule = $script:CurrentDlpControlRules[$controlId]
+                if ($previousRule.PSObject.Properties.Name -contains "SetHeader" -and $previousRule.SetHeader) {
+                    $Result.Pass = $true
+                    $Result.Comments = "Previously matched DLP rule has SetHeader configured"
+                    return $Result
+                }
+            }
+
+            # Look for a rule in enabled policies that has SetHeader configured
+            foreach ($rule in $enabledRules) {
+                if ($rule.PSObject.Properties.Name -contains "SetHeader" -and $rule.SetHeader) {
+                    # Store this rule for the control ID
+                    $script:CurrentDlpControlRules[$controlId] = $rule
+                    $Result.Pass = $true
+                    $Result.Comments = "Found DLP rule with SetHeader configured in enabled policy"
+                    return $Result
+                }
+            }
+            
+            # Check simulation rules for informational comments
+            $simulationMatches = $simulationRules | Where-Object { 
+                $_.PSObject.Properties.Name -contains "SetHeader" -and $_.SetHeader 
+            }
+            
+            if ($simulationMatches.Count -gt 0) {
+                $Result.Comments = "No enabled DLP rule found with SetHeader configured. Found $($simulationMatches.Count) rule(s) in simulation/test mode"
+            } else {
+                $Result.Comments = "No DLP rule found with SetHeader configured"
+            }
+        }
+        default {
+            $Result.Comments = "Unknown DLP rule property: $propertyName"
+        }
+    }
+    return $Result
+}
+
+# Helper: Recursively search for a property (e.g., Sensitivetypes > Name) in AdvancedRule JSON
+function Get-DlpDeepProperty {
+    param([object]$Node, [string]$Target)
+    $results = @()
+    if ($null -eq $Node) { return $results }
+    if ($Node -is [System.Collections.IEnumerable] -and -not ($Node -is [string])) {
+        foreach ($item in $Node) {
+            $results += Get-DlpDeepProperty -Node $item -Target $Target
+        }
+    } elseif ($Node -is [hashtable] -or $Node -is [PSCustomObject]) {
+        foreach ($key in $Node.PSObject.Properties.Name) {
+            $propValue = $Node.PSObject.Properties[$key].Value
+            if ($key -eq $Target -and $propValue) {
+                foreach ($item in $propValue) {
+                    if ($item.Name) { $results += $item.Name }
+                }
+            } elseif ($propValue -ne $null) {
+                $results += Get-DlpDeepProperty -Node $propValue -Target $Target
+            }
+        }
+    }
+    return $results
+}
 function Test-ControlBook {
     param(
         [Parameter(Mandatory = $true)]
@@ -160,6 +484,12 @@ function Test-ControlProperty {
             }
             "GetAutoSensitivityLabelPolicy" {
                 $result = Test-GetAutoSensitivityLabelPolicyProperty -Result $result -PropertyParts $propertyParts -ExpectedValue $expectedValue -OptimizedReport $OptimizedReport -AllLabels $AllLabels
+            }
+            "GetDlpComplianceRule" {
+                $result = Test-GetDlpComplianceRuleProperty -Result $result -PropertyParts $propertyParts -ExpectedValue $expectedValue -OptimizedReport $OptimizedReport
+            }
+            "GetDlpCompliancePolicy" {
+                $result = Test-GetDlpCompliancePolicyProperty -Result $result -PropertyParts $propertyParts -ExpectedValue $expectedValue -OptimizedReport $OptimizedReport
             }
             default {
                 $result.Comments = "Unknown data source: $dataSource"
