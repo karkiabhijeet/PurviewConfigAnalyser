@@ -41,7 +41,7 @@ function Test-PurviewCompliance {
     )
     
     # Get module root and configuration paths
-    $ModuleRoot = $PSScriptRoot | Split-Path -Parent | Split-Path -Parent | Split-Path -Parent
+    $ModuleRoot = $PSScriptRoot | Split-Path -Parent | Split-Path -Parent
     $ConfigPath = Join-Path $ModuleRoot "config"
     
     # Configuration file paths

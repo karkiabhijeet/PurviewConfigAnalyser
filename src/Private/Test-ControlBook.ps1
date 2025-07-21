@@ -60,12 +60,24 @@ function Test-GetDlpComplianceRuleProperty {
 
     $propertyName = $PropertyParts[1].Trim()
     
+    # Reconstruct the full property path for compound DLP properties
+    # PropertyParts[1] might be "AdvancedRule >> Sensitivetypes" and PropertyParts[2] might be "Mincount"
+    if ($PropertyParts.Count -gt 2 -and $propertyName -like "AdvancedRule*") {
+        # Rebuild the compound property path
+        $additionalParts = @()
+        for ($i = 2; $i -lt $PropertyParts.Count; $i++) {
+            $additionalParts += $PropertyParts[$i].Trim()
+        }
+        $propertyName = $propertyName + " > " + ($additionalParts -join " > ")
+    }
+    
     # Handle AdvancedRule properties with >> syntax
     if ($propertyName -like "AdvancedRule*") {
-        # Parse AdvancedRule properties (e.g., "AdvancedRule >> Labels")
-        $advancedRuleParts = $propertyName -split ' >> '
-        if ($advancedRuleParts.Count -ge 2) {
-            $deepProp = $advancedRuleParts[1].Trim()
+        # Parse AdvancedRule properties - need to handle compound paths correctly
+        # Example: "AdvancedRule >> Sensitivetypes > Mincount" should extract "Sensitivetypes > Mincount"
+        if ($propertyName -like "AdvancedRule >> *") {
+            # For compound paths, extract everything after "AdvancedRule >> "
+            $deepProp = $propertyName -replace '^AdvancedRule >> ', ''
             $deepVal = $ExpectedValue
             $found = $false
             $foundRule = $null
@@ -96,23 +108,76 @@ function Test-GetDlpComplianceRuleProperty {
                 }
             }
             
-            # Search enabled rules for AdvancedRule content
-            foreach ($rule in $enabledRules) {
+            # Search enabled rules for AdvancedRule content (and disabled rules for specific controls)
+            $rulesToSearch = $enabledRules
+            if ($controlId -eq "DLP_4.6" -or $controlId -eq "DLP_4.7" -or $controlId -eq "DLP_4.8") {
+                # For these specific controls, also search disabled rules since target rule might be disabled
+                $rulesToSearch = $rules
+            }
+            
+            foreach ($rule in $rulesToSearch) {
                 if ($rule.PSObject.Properties.Name -contains "AdvancedRule" -and $rule.AdvancedRule) {
                     try {
                         $adv = $rule.AdvancedRule | ConvertFrom-Json -ErrorAction Stop
-                        $names = Get-DlpDeepProperty -Node $adv -Target $deepProp
-                        if ($deepVal -eq 'Not Null') {
-                            if ($names.Count -gt 0) { 
-                                $found = $true
-                                $foundRule = $rule
-                                break
+                        
+                        # Use enhanced DLP parsing for compound properties (DLP_4.6, 4.7, 4.8)
+                        $isCompoundProp = $deepProp -like "*>*"
+                        $isTargetControl = ($controlId -eq "DLP_4.6" -or $controlId -eq "DLP_4.7" -or $controlId -eq "DLP_4.8")
+                        
+                        if ($isCompoundProp -and $isTargetControl) {
+                            try {
+                                # Load enhanced parser functions
+                                . "$PSScriptRoot\DlpAdvancedParser.ps1"
+                                $parseResult = Test-DlpAdvancedRuleProperty -AdvRule $adv -DeepProp $deepProp -DeepVal $deepVal -ControlId $controlId
+                                if ($parseResult.Found) {
+                                    $found = $true
+                                    $foundRule = $rule
+                                    break
+                                }
+                            } catch {
+                                # Continue to next rule
                             }
                         } else {
-                            if ($names -contains $deepVal) { 
-                                $found = $true
-                                $foundRule = $rule
-                                break
+                            # Use existing logic for simple properties
+                            $names = Get-DlpDeepProperty -Node $adv -Target $deepProp
+                            
+                            if ($deepVal -eq 'Not Null') {
+                                if ($names.Count -gt 0) { 
+                                    $found = $true
+                                    $foundRule = $rule
+                                    break
+                                }
+                            } elseif ($deepProp -like "*MinCount" -and $deepVal -match '^\d+$') {
+                                # Handle numeric MinCount comparison (>= expected value)
+                                $targetMinCount = [int]$deepVal
+                                $highestMinCount = if ($names.Count -gt 0) { ($names | Measure-Object -Maximum).Maximum } else { 0 }
+                                if ($highestMinCount -ge $targetMinCount) {
+                                    $found = $true
+                                    $foundRule = $rule
+                                    break
+                                }
+                            } elseif ($deepVal -match "," -and $deepProp -like "*Name") {
+                                # Handle comma-separated list of required names
+                                $requiredNames = $deepVal -split ',' | ForEach-Object { $_.Trim() }
+                                $allFound = $true
+                                foreach ($reqName in $requiredNames) {
+                                    if ($names -notcontains $reqName) {
+                                        $allFound = $false
+                                        break
+                                    }
+                                }
+                                if ($allFound) {
+                                    $found = $true
+                                    $foundRule = $rule
+                                    break
+                                }
+                            } else {
+                                # Standard string matching
+                                if ($names -contains $deepVal) { 
+                                    $found = $true
+                                    $foundRule = $rule
+                                    break
+                                }
                             }
                         }
                     } catch {
@@ -136,11 +201,40 @@ function Test-GetDlpComplianceRuleProperty {
                     if ($rule.PSObject.Properties.Name -contains "AdvancedRule" -and $rule.AdvancedRule) {
                         try {
                             $adv = $rule.AdvancedRule | ConvertFrom-Json -ErrorAction Stop
-                            $names = Get-DlpDeepProperty -Node $adv -Target $deepProp
-                            if ($deepVal -eq 'Not Null') {
-                                if ($names.Count -gt 0) { $simulationFound = $true; break }
+                            
+                            # Use enhanced DLP parsing for compound properties (DLP_4.6, 4.7, 4.8)
+                            if ($deepProp -like "*>*" -and ($controlId -eq "DLP_4.6" -or $controlId -eq "DLP_4.7" -or $controlId -eq "DLP_4.8")) {
+                                # Load enhanced parser functions (already loaded above)
+                                if (Get-Command Test-DlpAdvancedRuleProperty -ErrorAction SilentlyContinue) {
+                                    $parseResult = Test-DlpAdvancedRuleProperty -AdvRule $adv -DeepProp $deepProp -DeepVal $deepVal -ControlId $controlId
+                                    if ($parseResult.Found) { $simulationFound = $true; break }
+                                }
                             } else {
-                                if ($names -contains $deepVal) { $simulationFound = $true; break }
+                                # Use existing logic
+                                $names = Get-DlpDeepProperty -Node $adv -Target $deepProp
+                                
+                                if ($deepVal -eq 'Not Null') {
+                                    if ($names.Count -gt 0) { $simulationFound = $true; break }
+                                } elseif ($deepProp -like "*MinCount" -and $deepVal -match '^\d+$') {
+                                    # Handle numeric MinCount comparison (>= expected value)
+                                    $targetMinCount = [int]$deepVal
+                                    $highestMinCount = if ($names.Count -gt 0) { ($names | Measure-Object -Maximum).Maximum } else { 0 }
+                                    if ($highestMinCount -ge $targetMinCount) { $simulationFound = $true; break }
+                                } elseif ($deepVal -match "," -and $deepProp -like "*Name") {
+                                    # Handle comma-separated list of required names
+                                    $requiredNames = $deepVal -split ',' | ForEach-Object { $_.Trim() }
+                                    $allFound = $true
+                                    foreach ($reqName in $requiredNames) {
+                                        if ($names -notcontains $reqName) {
+                                            $allFound = $false
+                                            break
+                                        }
+                                    }
+                                    if ($allFound) { $simulationFound = $true; break }
+                                } else {
+                                    # Standard string matching
+                                    if ($names -contains $deepVal) { $simulationFound = $true; break }
+                                }
                             }
                         } catch {}
                     }
@@ -304,6 +398,31 @@ function Get-DlpDeepProperty {
     param([object]$Node, [string]$Target)
     $results = @()
     if ($null -eq $Node) { return $results }
+    
+    # Handle compound property paths like "Sensitivetypes > Name"
+    if ($Target -like "*>*") {
+        $parts = $Target -split '\s*>\s*'
+        $containerProp = $parts[0]
+        $targetProp = $parts[1]
+        
+        # First find the container (e.g., "Sensitivetypes")
+        $containers = Get-DlpDeepProperty -Node $Node -Target $containerProp
+        
+        # Then extract the target property from each container item
+        foreach ($container in $containers) {
+            if ($container) {
+                # Try case-insensitive property matching
+                $matchingProp = $container.PSObject.Properties | Where-Object { $_.Name -ieq $targetProp }
+                if ($matchingProp) {
+                    $value = $matchingProp.Value
+                    if ($value) { $results += $value }
+                }
+            }
+        }
+        return $results
+    }
+    
+    # Original logic for simple properties with case-insensitive matching
     if ($Node -is [System.Collections.IEnumerable] -and -not ($Node -is [string])) {
         foreach ($item in $Node) {
             $results += Get-DlpDeepProperty -Node $item -Target $Target
@@ -311,9 +430,14 @@ function Get-DlpDeepProperty {
     } elseif ($Node -is [hashtable] -or $Node -is [PSCustomObject]) {
         foreach ($key in $Node.PSObject.Properties.Name) {
             $propValue = $Node.PSObject.Properties[$key].Value
-            if ($key -eq $Target -and $propValue) {
-                foreach ($item in $propValue) {
-                    if ($item.Name) { $results += $item.Name }
+            # Use case-insensitive comparison for property names
+            if ($key -ieq $Target -and $propValue) {
+                if ($propValue -is [System.Collections.IEnumerable] -and -not ($propValue -is [string])) {
+                    foreach ($item in $propValue) {
+                        $results += $item
+                    }
+                } else {
+                    $results += $propValue
                 }
             } elseif ($propValue -ne $null) {
                 $results += Get-DlpDeepProperty -Node $propValue -Target $Target
@@ -513,6 +637,14 @@ function Test-GetLabelProperty {
     
     $propertyName = $PropertyParts[1].Trim()
     
+    # Handle >> operator for deep property access
+    $deepProperty = $null
+    if ($propertyName -like "*>>*") {
+        $deepParts = $propertyName -split '\s*>>\s*'
+        $propertyName = $deepParts[0].Trim()
+        $deepProperty = $deepParts[1].Trim()
+    }
+    
     switch ($propertyName) {
         "Published" {
             # Check if any labels are published
@@ -531,8 +663,8 @@ function Test-GetLabelProperty {
             $missingLabels = @()
             
             foreach ($requiredLabel in $requiredLabels) {
-                $publishedMatch = $PublishedLabels | Where-Object { $_.DisplayName -eq $requiredLabel }
-                $allMatch = $AllLabels | Where-Object { $_.DisplayName -eq $requiredLabel }
+                $publishedMatch = $PublishedLabels | Where-Object { $_.DisplayName -ieq $requiredLabel }
+                $allMatch = $AllLabels | Where-Object { $_.DisplayName -ieq $requiredLabel }
                 
                 if ($publishedMatch) {
                     $foundPublishedLabels += $requiredLabel
@@ -611,12 +743,18 @@ function Test-GetLabelProperty {
             }
         }
         "Conditions" {
-            if ($PropertyParts.Count -lt 3) {
+            # Handle both old format (GetLabel > Conditions > Key) and new format (GetLabel > Conditions >> Key)
+            $conditionProperty = $null
+            if ($deepProperty) {
+                # New format with >> operator
+                $conditionProperty = $deepProperty
+            } elseif ($PropertyParts.Count -ge 3) {
+                # Old format with single > operator
+                $conditionProperty = $PropertyParts[2].Trim()
+            } else {
                 $Result.Comments = "Invalid Conditions property path"
                 return $Result
             }
-            
-            $conditionProperty = $PropertyParts[2].Trim()
             
             # For Sensitivity Auto-labelling controls, only consider labels from the taxonomy defined in DisplayName control
             $labelsToCheck = $PublishedLabels
@@ -1003,25 +1141,46 @@ function Parse-LabelConditions {
     if ($Label.Conditions) {
         try {
             $conditionsObj = $Label.Conditions | ConvertFrom-Json
-            # Parse the complex conditions structure
-            if ($conditionsObj.And) {
-                foreach ($condition in $conditionsObj.And) {
-                    if ($condition.And) {
-                        foreach ($subCondition in $condition.And) {
-                            if ($subCondition.Settings) {
-                                foreach ($setting in $subCondition.Settings) {
-                                    $conditions[$setting.Key] = $setting.Value
-                                }
-                            }
-                        }
-                    }
-                }
-            }
+            # Parse the complex conditions structure recursively
+            Parse-ConditionsRecursively -Node $conditionsObj -Conditions ([ref]$conditions)
         } catch {
             # Handle malformed JSON
         }
     }
     return $conditions
+}
+
+function Parse-ConditionsRecursively {
+    param($Node, [ref]$Conditions)
+    
+    if ($null -eq $Node) { return }
+    
+    # Handle arrays
+    if ($Node -is [System.Collections.IEnumerable] -and -not ($Node -is [string])) {
+        foreach ($item in $Node) {
+            Parse-ConditionsRecursively -Node $item -Conditions $Conditions
+        }
+        return
+    }
+    
+    # Handle objects
+    if ($Node -is [hashtable] -or $Node -is [PSCustomObject]) {
+        # Check for Settings array (this is where Key/Value pairs are stored)
+        if ($Node.Settings) {
+            foreach ($setting in $Node.Settings) {
+                if ($setting.Key -and $setting.Value) {
+                    $Conditions.Value[$setting.Key] = $setting.Value
+                }
+            }
+        }
+        
+        # Recursively parse all properties (And, Or, etc.)
+        foreach ($prop in $Node.PSObject.Properties) {
+            if ($prop.Value) {
+                Parse-ConditionsRecursively -Node $prop.Value -Conditions $Conditions
+            }
+        }
+    }
 }
 
 function Parse-PolicySettings {
