@@ -1,7 +1,7 @@
 @{
     # Module manifest for PurviewConfigAnalyser
     RootModule = 'PurviewConfigAnalyser.psm1'
-    ModuleVersion = '1.0.6'
+    ModuleVersion = '1.0.8'
     GUID = '7922a05c-1dac-422d-9720-06bf4421e59b'
     Author = 'Abhijeet Karki'
     CompanyName = 'Individual'
@@ -59,7 +59,25 @@
             ProjectUri = 'https://github.com/karkiabhijeet/PurviewConfigAnalyser'
             IconUri = ''
             ReleaseNotes = @'
-# PurviewConfigAnalyser v1.0.6
+# PurviewConfigAnalyser v1.0.8
+
+## New in v1.0.8 - VERSION-SPECIFIC OUTPUT DIRECTORIES
+- [CRITICAL FIX] Fixed output directory structure for multiple module versions
+- [FIX] Output directories are now version-specific within each installed module version
+- [FIX] Data collection and file lookups now use consistent ../output paths within each version
+- [FIX] Prevents conflicts between multiple installed versions (1.0.0, 1.0.6, 1.0.7, etc.)
+- [FIX] Each module version maintains its own output folder structure
+- [FIX] Resolves issues where older versions were being referenced due to module loading order
+- [IMPROVEMENT] Users no longer need to uninstall previous versions before installing new ones
+- Module versions now properly isolated and self-contained
+
+## New in v1.0.7 - OUTPUT PATH CONSISTENCY FIX
+- [CRITICAL FIX] Fixed output directory path inconsistency between data collection and file lookup
+- [FIX] Data collection creates files at module root level (..\output) but lookups were using version-specific path
+- [FIX] Aligned all output path references to use module root level consistently (..\..\output from Public folder)  
+- [FIX] Resolves "Cannot find path output" error after successful data collection
+- [FIX] Files are now correctly found after being created by data collection process
+- Module now works correctly for both data collection and subsequent file lookups
 
 ## New in v1.0.6 - USER-FRIENDLY VALIDATION
 - [CRITICAL FIX] Fixed validation workflow for installed modules without output directory

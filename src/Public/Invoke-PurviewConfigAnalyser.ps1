@@ -299,6 +299,7 @@ function Execute-CollectAndTest {
 
         # Get the latest OptimizedReport JSON file  
         $configBasePath = "$PSScriptRoot\..\config"
+        # Data collection creates files at version-specific output directory (../output from Public folder)
         $outputBasePath = "$PSScriptRoot\..\output"
 
         $optimizedReportPath = Get-LatestOptimizedReport -RunLogPath "$outputBasePath\file_runlog.txt" -OutputPath $outputBasePath
@@ -378,7 +379,8 @@ function Execute-CollectOnly {
         & $dataCollectionScript
 
         # Get the latest OptimizedReport JSON file to confirm success
-        $outputBasePath = "$PSScriptRoot\..\..\output"
+        # Data collection creates files at version-specific output directory (../output from Public folder)
+        $outputBasePath = "$PSScriptRoot\..\output"
         $optimizedReportPath = Get-LatestOptimizedReport -RunLogPath "$outputBasePath\file_runlog.txt" -OutputPath $outputBasePath
 
         if ($optimizedReportPath -and (Test-Path $optimizedReportPath)) {
@@ -434,6 +436,7 @@ function Execute-TestOnly {
             Write-Host "Running Validation Tests..." -ForegroundColor Yellow
             
             # Check if we're in an installed module environment (no output directory)
+            # Data collection creates files at version-specific output directory (../output from Public folder)
             $outputBasePath = "$PSScriptRoot\..\output"
             if (-not (Test-Path $outputBasePath)) {
                 # We're in an installed module - need user to provide JSON file

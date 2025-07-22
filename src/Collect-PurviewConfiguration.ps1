@@ -490,7 +490,7 @@ $Collection = Get-InsiderRiskManagementSettings -Collection $Collection -LogFile
 $Collection = Get-TenantDetails -Collection $Collection -LogFile $LogFile
 $TenantId = $Collection["TenantDetails"]["TenantId"] -replace "[^a-zA-Z0-9]", "" # Remove special characters
 
-# Step 3: Output directory and file
+# Step 3: Output directory and file - Version-specific output directory
 $OutputDir = Join-Path -Path $PSScriptRoot -ChildPath "..\output"
 if (-not (Test-Path -Path $OutputDir)) {
     New-Item -ItemType Directory -Path $OutputDir | Out-Null
