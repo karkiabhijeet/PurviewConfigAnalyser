@@ -2,14 +2,29 @@
 
 ## 🚀 Simple Installation (Recommended)
 
-### Option 1: PowerShell Gallery (Coming Soon)
+### Option 1: PowerShell Gallery (AVAILABLE NOW!)
 ```powershell
-# Install from PowerShell Gallery (when published)
+# Install from PowerShell Gallery
 Install-Module -Name PurviewConfigAnalyser -Force
 Import-Module PurviewConfigAnalyser
+
+# Start using immediately
+Invoke-PurviewConfigAnalyser
 ```
 
-### Option 2: Manual Installation (Current)
+> **Installation Note**: The module depends on ImportExcel (~1MB). The installation may take 1-2 minutes to download dependencies, especially on slower connections. If it appears to "hang", it's likely downloading the ImportExcel module. For troubleshooting, see [INSTALLATION_TROUBLESHOOTING.md](./INSTALLATION_TROUBLESHOOTING.md).
+
+**Quick Fix for Slow Installations:**
+```powershell
+# If installation seems stuck, try with verbose output to see progress
+Install-Module -Name PurviewConfigAnalyser -Force -Verbose
+
+# Or install dependencies first
+Install-Module -Name ImportExcel -Force
+Install-Module -Name PurviewConfigAnalyser -Force
+```
+
+### Option 2: Manual Installation (Alternative)
 ```powershell
 # Download and extract the module
 # Place in your PowerShell modules directory, then:
@@ -34,12 +49,10 @@ Test-PurviewCompliance -OptimizedReportPath ".\OptimizedReport_*.json" -Configur
 - **Excel Report**: `.\results\results_AUGov.xlsx` (detailed with multiple tabs)
 - **CSV Report**: `.\results\results_AUGov.csv` (simple data format)
 
-## 📊 What You Get
-
-### Compliance Assessment For:
-- ✅ **Sensitivity Labels** (11 controls)
-- ✅ **Sensitivity Auto-labeling** (2 controls) 
-- ✅ **Data Loss Prevention** (8 controls)
+## Compliance Assessment For:
+- [YES] **Sensitivity Labels** (11 controls)
+- [YES] **Sensitivity Auto-labeling** (2 controls) 
+- [YES] **Data Loss Prevention** (8 controls)
 
 ### Reports Include:
 - **Overall Compliance Rate** (currently achieving 96.3% on reference data)

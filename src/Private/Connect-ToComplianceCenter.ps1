@@ -15,10 +15,10 @@ function Connect-ToComplianceCenter {
         # Connect to the Compliance Center using UserPrincipalName
         Connect-IPPSSession -UserPrincipalName $userName -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 
-        $InfoMessage = "✅ Connection established successfully!"
+        $InfoMessage = "[SUCCESS] Connection established successfully!"
         Write-Host $InfoMessage -ForegroundColor Green
     } catch {
-        Write-Host "❌ Connection failed: $_" -ForegroundColor Red
+        Write-Host "[ERROR] Connection failed: $_" -ForegroundColor Red
         throw
     }
 }

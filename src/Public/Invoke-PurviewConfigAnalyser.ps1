@@ -47,7 +47,7 @@ function Invoke-PurviewConfigAnalyser {
                 Write-Host "Step 2: Running Compliance Tests..." -ForegroundColor Yellow
                 $results = Test-PurviewCompliance -ConfigurationName $ConfigurationName -OptimizedReportPath $configPath
                 
-                Write-Host "✅ Collection and testing completed successfully!" -ForegroundColor Green
+                Write-Host "[SUCCESS] Collection and testing completed successfully!" -ForegroundColor Green
                 return $results
             }
             
@@ -55,7 +55,7 @@ function Invoke-PurviewConfigAnalyser {
                 Write-Host "Collecting Purview Configuration Data..." -ForegroundColor Yellow
                 $configPath = Get-PurviewConfig -OutputPath $OutputPath
                 
-                Write-Host "✅ Configuration collection completed successfully!" -ForegroundColor Green
+                Write-Host "[SUCCESS] Configuration collection completed successfully!" -ForegroundColor Green
                 Write-Host "Configuration saved to: $configPath" -ForegroundColor Gray
                 return $configPath
             }
@@ -64,13 +64,13 @@ function Invoke-PurviewConfigAnalyser {
                 Write-Host "Running Compliance Tests..." -ForegroundColor Yellow
                 $results = Test-PurviewCompliance -ConfigurationName $ConfigurationName
                 
-                Write-Host "✅ Compliance testing completed successfully!" -ForegroundColor Green
+                Write-Host "[SUCCESS] Compliance testing completed successfully!" -ForegroundColor Green
                 return $results
             }
         }
     }
     catch {
-        Write-Host "❌ Operation failed: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "[ERROR] Operation failed: $($_.Exception.Message)" -ForegroundColor Red
         throw $_
     }
 }
@@ -155,7 +155,7 @@ function Show-MainMenu {
         Write-Host "     -> Close the application                                              " -ForegroundColor Gray
         Write-Host "+-----------------------------------------------------------------------------+" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "📋 CUSTOM CONFIGURATION GUIDE" -ForegroundColor Yellow
+        Write-Host "[INFO] CUSTOM CONFIGURATION GUIDE" -ForegroundColor Yellow
         Write-Host "Need a custom compliance framework? Create your own control books:" -ForegroundColor Gray
         Write-Host "• Step 1: Create ControlBook_[YourName]_Config.csv with your controls" -ForegroundColor Gray
         Write-Host "• Step 2: Create ControlBook_Property_[YourName]_Config.csv for properties" -ForegroundColor Gray
@@ -206,7 +206,7 @@ function Show-MainMenu {
                 Write-Host "CUSTOM CONFIGURATION GUIDE" -ForegroundColor Yellow
                 Write-Host "==========================" -ForegroundColor Yellow
                 Write-Host ""
-                Write-Host "📋 How to Create Your Own Compliance Framework:" -ForegroundColor Cyan
+                Write-Host "[INFO] How to Create Your Own Compliance Framework:" -ForegroundColor Cyan
                 Write-Host ""
                 Write-Host "Step 1: Navigate to Master Control Books" -ForegroundColor White
                 Write-Host "   Location: .\config\MasterControlBooks\" -ForegroundColor Gray
@@ -216,7 +216,7 @@ function Show-MainMenu {
                 Write-Host "   • ControlBook_[YourName]_Config.csv" -ForegroundColor Yellow
                 Write-Host "   • ControlBook_Property_[YourName]_Config.csv" -ForegroundColor Yellow
                 Write-Host ""
-                Write-Host "📝 Examples:" -ForegroundColor Cyan
+                Write-Host "[EXAMPLE] Examples:" -ForegroundColor Cyan
                 Write-Host "   • ControlBook_Healthcare_Config.csv" -ForegroundColor Gray
                 Write-Host "   • ControlBook_Property_Healthcare_Config.csv" -ForegroundColor Gray
                 Write-Host "   • ControlBook_Banking_Config.csv" -ForegroundColor Gray
@@ -230,12 +230,12 @@ function Show-MainMenu {
                 Write-Host "   • Set properties to test for each control ID" -ForegroundColor Gray
                 Write-Host "   • Define expected values and requirements" -ForegroundColor Gray
                 Write-Host ""
-                Write-Host "⚠️  Important: Control IDs must match between both files" -ForegroundColor Red
+                Write-Host "[WARNING]  Important: Control IDs must match between both files" -ForegroundColor Red
                 Write-Host ""
                 Write-Host "Step 4: Run Your Custom Assessment" -ForegroundColor White
                 Write-Host "   Test-PurviewCompliance -Configuration `"[YourName]`"" -ForegroundColor Yellow
                 Write-Host ""
-                Write-Host "💡 Pro Tip: Copy existing AUGov files as templates!" -ForegroundColor Green
+                Write-Host "[TIP] Pro Tip: Copy existing AUGov files as templates!" -ForegroundColor Green
                 Write-Host ""
             }
             '4' {
@@ -414,7 +414,7 @@ function Execute-TestOnly {
     )
     
     try {
-        Write-Host "✅ RUN VALIDATION TESTS ONLY" -ForegroundColor Green
+        Write-Host "[SUCCESS] RUN VALIDATION TESTS ONLY" -ForegroundColor Green
         Write-Host "══════════════════════════════" -ForegroundColor Green
         Write-Host "This will:" -ForegroundColor White
         Write-Host "  1. Use existing Purview configuration data" -ForegroundColor Gray
@@ -441,11 +441,11 @@ function Execute-TestOnly {
             
             & $assessmentScript -ConfigurationName $selectedConfig -SkipDataCollection -GenerateExcel
             
-            Write-Host "✅ Validation tests completed successfully!" -ForegroundColor Green
+            Write-Host "[SUCCESS] Validation tests completed successfully!" -ForegroundColor Green
         }
     }
     catch {
-        Write-Host "❌ Operation failed: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "[ERROR] Operation failed: $($_.Exception.Message)" -ForegroundColor Red
         Write-Host "─────────────────────────────────────────────────────────────────────────────────" -ForegroundColor Gray
         Write-Host "🔄 Press any key to return to the main menu..." -ForegroundColor Yellow
         $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
@@ -476,7 +476,7 @@ function Show-ConfigurationMenu {
     $configFiles = Get-ChildItem -Path $configPath -Filter "ControlBook_*_Config.csv" | Where-Object { $_.Name -notmatch "Property" }
     
     if ($configFiles.Count -eq 0) {
-        Write-Host "❌ No configuration files found in $configPath" -ForegroundColor Red
+        Write-Host "[ERROR] No configuration files found in $configPath" -ForegroundColor Red
         Write-Host "Please ensure configuration files are properly installed." -ForegroundColor Yellow
         return $null
     }
@@ -536,7 +536,7 @@ function Show-ConfigurationMenu {
             if ($choiceNum -ge 1 -and $choiceNum -le $configurations.Count) {
                 $selectedConfig = $configurations[$choiceNum - 1]
                 Write-Host ""
-                Write-Host "✅ Selected: $selectedConfig" -ForegroundColor Green
+                Write-Host "[SUCCESS] Selected: $selectedConfig" -ForegroundColor Green
                 $description = $configDescriptions[$selectedConfig]
                 if ($description) {
                     Write-Host "   Framework: $description" -ForegroundColor Gray
@@ -568,7 +568,7 @@ function Show-ValidationConfigurationMenu {
     [CmdletBinding()]
     param()
     
-    Write-Host "📋 SELECT VALIDATION CONFIGURATION" -ForegroundColor Yellow
+    Write-Host "[INFO] SELECT VALIDATION CONFIGURATION" -ForegroundColor Yellow
     Write-Host "═══════════════════════════════════" -ForegroundColor Yellow
     Write-Host "Choose which compliance framework you want to validate against:" -ForegroundColor White
     Write-Host ""
@@ -591,7 +591,7 @@ function Show-ValidationConfigurationMenu {
     }
     
     if ($availableConfigs.Count -eq 0) {
-        Write-Host "❌ No validation configurations found in the config directory." -ForegroundColor Red
+        Write-Host "[ERROR] No validation configurations found in the config directory." -ForegroundColor Red
         Write-Host "   Please ensure configuration files are properly set up." -ForegroundColor Yellow
         return $null
     }
@@ -628,7 +628,7 @@ function Show-ValidationConfigurationMenu {
             $choiceNum = [int]$choice
             if ($choiceNum -ge 1 -and $choiceNum -le $availableConfigs.Count) {
                 $selectedConfig = $availableConfigs[$choiceNum - 1]
-                Write-Host "✅ Selected configuration: $selectedConfig" -ForegroundColor Green
+                Write-Host "[SUCCESS] Selected configuration: $selectedConfig" -ForegroundColor Green
                 return $selectedConfig
             } elseif ($choiceNum -eq $optionNumber) {
                 Write-Host "🔙 Returning to main menu..." -ForegroundColor Gray
@@ -636,7 +636,7 @@ function Show-ValidationConfigurationMenu {
             }
         }
         
-        Write-Host "❌ Invalid input. Please enter a number between 1 and $optionNumber." -ForegroundColor Red
+        Write-Host "[ERROR] Invalid input. Please enter a number between 1 and $optionNumber." -ForegroundColor Red
         
     } while ($true)
 }
@@ -671,10 +671,10 @@ function Execute-CreateCustomConfig {
         if ($proceed -match '^[Yy]') {
             break
         } elseif ($proceed -match '^[Nn]') {
-            Write-Host "❌ Custom configuration creation cancelled." -ForegroundColor Yellow
+            Write-Host "[ERROR] Custom configuration creation cancelled." -ForegroundColor Yellow
             return
         } else {
-            Write-Host "❌ Please enter Y for Yes or N for No." -ForegroundColor Red
+            Write-Host "[ERROR] Please enter Y for Yes or N for No." -ForegroundColor Red
         }
     } while ($true)
     
@@ -692,9 +692,9 @@ function Execute-CreateCustomConfig {
         do {
             $configName = Read-Host "Enter a name for your custom configuration (e.g., 'CustomOrg', 'ACME_Corp')"
             if ([string]::IsNullOrWhiteSpace($configName)) {
-                Write-Host "❌ Configuration name cannot be empty. Please try again." -ForegroundColor Red
+                Write-Host "[ERROR] Configuration name cannot be empty. Please try again." -ForegroundColor Red
             } elseif ($configName -match '[^a-zA-Z0-9_]') {
-                Write-Host "❌ Configuration name can only contain letters, numbers, and underscores. Please try again." -ForegroundColor Red
+                Write-Host "[ERROR] Configuration name can only contain letters, numbers, and underscores. Please try again." -ForegroundColor Red
             } else {
                 # Check if configuration already exists
                 $configPath = "$PSScriptRoot\..\..\config\ControlBook_${configName}_Config.csv"
@@ -839,19 +839,19 @@ function Execute-CreateCustomConfig {
                 if (Test-Path $assessmentScript) {
                     & $assessmentScript -ConfigurationName $configName -SkipDataCollection -GenerateExcel
                 } else {
-                    Write-Host "❌ Assessment script not found. Please run tests manually." -ForegroundColor Red
+                    Write-Host "[ERROR] Assessment script not found. Please run tests manually." -ForegroundColor Red
                 }
                 break
             } elseif ($testNow -match '^[Nn]') {
                 Write-Host "Configuration saved. You can test it later by selecting 'Run Validation Tests Only' from the main menu." -ForegroundColor Gray
                 break
             } else {
-                Write-Host "❌ Please enter Y for Yes or N for No." -ForegroundColor Red
+                Write-Host "[ERROR] Please enter Y for Yes or N for No." -ForegroundColor Red
             }
         } while ($true)
         
     } catch {
-        Write-Host "❌ Error creating custom configuration: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "[ERROR] Error creating custom configuration: $($_.Exception.Message)" -ForegroundColor Red
         Write-Host "Please check that the reference files exist and try again." -ForegroundColor Yellow
     }
     

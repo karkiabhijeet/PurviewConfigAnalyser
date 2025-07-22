@@ -70,23 +70,23 @@ function Get-PurviewConfig {
         # Try to convert to JSON with manageable depth
         try {
             $Collection | ConvertTo-Json -Depth 10 | Out-File -FilePath $OutputFile -Encoding UTF8
-            Write-Host "✅ OptimizedReport.json generated successfully!" -ForegroundColor Green
+            Write-Host "[SUCCESS] OptimizedReport.json generated successfully!" -ForegroundColor Green
             
             # Log the generated file
             $LogEntry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - OptimizedReport: $(Split-Path -Leaf $OutputFile)"
             Add-Content -Path $RunLogFile -Value $LogEntry
             
         } catch {
-            Write-Host "❌ JSON conversion failed with depth 10: $_" -ForegroundColor Red
+            Write-Host "[ERROR] JSON conversion failed with depth 10: $_" -ForegroundColor Red
             try {
                 $Collection | ConvertTo-Json -Depth 5 | Out-File -FilePath $OutputFile -Encoding UTF8
-                Write-Host "✅ OptimizedReport.json generated with reduced depth!" -ForegroundColor Green
+                Write-Host "[SUCCESS] OptimizedReport.json generated with reduced depth!" -ForegroundColor Green
                 
                 $LogEntry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - OptimizedReport: $(Split-Path -Leaf $OutputFile)"
                 Add-Content -Path $RunLogFile -Value $LogEntry
                 
             } catch {
-                Write-Host "❌ JSON conversion failed with depth 5: $_" -ForegroundColor Red
+                Write-Host "[ERROR] JSON conversion failed with depth 5: $_" -ForegroundColor Red
                 Write-Host "Creating minimal JSON for Excel processing..." -ForegroundColor Yellow
                 
                 $MinimalCollection = @{
@@ -100,7 +100,7 @@ function Get-PurviewConfig {
                     InsiderRiskManagement = $Collection["InsiderRiskManagement"]
                 }
                 $MinimalCollection | ConvertTo-Json -Depth 3 | Out-File -FilePath $OutputFile -Encoding UTF8
-                Write-Host "✅ Minimal OptimizedReport.json generated!" -ForegroundColor Green
+                Write-Host "[SUCCESS] Minimal OptimizedReport.json generated!" -ForegroundColor Green
                 
                 $LogEntry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - OptimizedReport (Minimal): $(Split-Path -Leaf $OutputFile)"
                 Add-Content -Path $RunLogFile -Value $LogEntry
@@ -133,7 +133,7 @@ function Get-PurviewConfig {
         $LogEntry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - Excel Report: $(Split-Path -Leaf $OutputExcelFile)"
         Add-Content -Path $RunLogFile -Value $LogEntry
         
-        Write-Host "✅ Data collection complete!" -ForegroundColor Green
+        Write-Host "[SUCCESS] Data collection complete!" -ForegroundColor Green
         Write-Host "   JSON file: $OutputFile" -ForegroundColor Gray
         Write-Host "   Excel file: $OutputExcelFile" -ForegroundColor Gray
         
@@ -145,7 +145,7 @@ function Get-PurviewConfig {
         }
         
     } catch {
-        Write-Host "❌ Data collection failed: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "[ERROR] Data collection failed: $($_.Exception.Message)" -ForegroundColor Red
         throw
     }
 }

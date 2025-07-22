@@ -156,11 +156,11 @@ function Connect-ToComplianceCenter {
         # Connect to the Compliance Center using UserPrincipalName
         Connect-IPPSSession -UserPrincipalName $userName -ErrorAction SilentlyContinue -WarningAction SilentlyContinue
 
-        $InfoMessage = "✅ Connection established successfully!"
+        $InfoMessage = "[SUCCESS] Connection established successfully!"
         Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
         Write-Host $InfoMessage -ForegroundColor Green
     } catch {
-        Write-Host "❌ Connection failed: $_" -ForegroundColor Red
+        Write-Host "[ERROR] Connection failed: $_" -ForegroundColor Red
         exit 1
     }
 }
@@ -508,26 +508,26 @@ $Collection = Convert-ObjectForJson -InputObject $Collection
 try {
     # Try with depth 10 first (much more manageable file size)
     $Collection | ConvertTo-Json -Depth 10 | Out-File -FilePath $OutputFile -Encoding UTF8
-    Write-Host "✅ OptimizedReport.json generated successfully!" -ForegroundColor Green
+    Write-Host "[SUCCESS] OptimizedReport.json generated successfully!" -ForegroundColor Green
     
     # Log the generated file
     $LogEntry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - OptimizedReport: $(Split-Path -Leaf $OutputFile)"
     Add-Content -Path $RunLogFile -Value $LogEntry
     
 } catch {
-    Write-Host "❌ JSON conversion failed with depth 10: $_" -ForegroundColor Red
+    Write-Host "[ERROR] JSON conversion failed with depth 10: $_" -ForegroundColor Red
     try {
         # Try with depth 5 as fallback
         Write-Host "Trying with reduced depth (5)..." -ForegroundColor Yellow
         $Collection | ConvertTo-Json -Depth 5 | Out-File -FilePath $OutputFile -Encoding UTF8
-        Write-Host "✅ OptimizedReport.json generated successfully with reduced depth!" -ForegroundColor Green
+        Write-Host "[SUCCESS] OptimizedReport.json generated successfully with reduced depth!" -ForegroundColor Green
         
         # Log the generated file
         $LogEntry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - OptimizedReport: $(Split-Path -Leaf $OutputFile)"
         Add-Content -Path $RunLogFile -Value $LogEntry
         
     } catch {
-        Write-Host "❌ JSON conversion failed with depth 5: $_" -ForegroundColor Red
+        Write-Host "[ERROR] JSON conversion failed with depth 5: $_" -ForegroundColor Red
         Write-Host "Creating minimal JSON for Excel processing..." -ForegroundColor Yellow
         # Create a minimal JSON for Excel processing
         $MinimalCollection = @{
@@ -541,7 +541,7 @@ try {
             InsiderRiskManagement = $Collection["InsiderRiskManagement"]
         }
         $MinimalCollection | ConvertTo-Json -Depth 3 | Out-File -FilePath $OutputFile -Encoding UTF8
-        Write-Host "✅ Minimal OptimizedReport.json generated for Excel processing!" -ForegroundColor Green
+        Write-Host "[SUCCESS] Minimal OptimizedReport.json generated for Excel processing!" -ForegroundColor Green
         
         # Log the generated file
         $LogEntry = "$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss') - OptimizedReport (Minimal): $(Split-Path -Leaf $OutputFile)"
@@ -549,7 +549,7 @@ try {
     }
 }
 
-Write-Host "✅ Data collection complete!" -ForegroundColor Green
+Write-Host "[SUCCESS] Data collection complete!" -ForegroundColor Green
 Write-Host "   OptimizedReport.json: $OutputFile" -ForegroundColor Gray
 
 # Import the required module for Excel manipulation
@@ -820,7 +820,7 @@ function GenerateExcelFromJSON {
         $ExcelSheets | ForEach-Object {
             Export-Excel -Path $OutputExcelPath -WorksheetName $_.Name -AutoSize -ClearSheet -InputObject $_.Data
         }
-        $InfoMessage = "✅ Excel file generated successfully!"
+        $InfoMessage = "[SUCCESS] Excel file generated successfully!"
         Write-Log -IsInfo -InfoMessage $InfoMessage -LogFile $LogFile -ErrorAction:SilentlyContinue
         
     } catch {
@@ -862,7 +862,7 @@ if ($JsonForExcel.TenantDetails -and $JsonForExcel.TenantDetails.TenantId -ne "U
 if (Test-Path -Path $OriginalJsonFile) {
     GenerateExcelFromJSON -JsonFilePath $OriginalJsonFile -OutputExcelPath $OutputExcelFile -TenantDetails $TenantDetails
     
-    Write-Host "✅ Excel report generated!" -ForegroundColor Green
+    Write-Host "[SUCCESS] Excel report generated!" -ForegroundColor Green
     Write-Host "   Excel file: $OutputExcelFile" -ForegroundColor Gray
     
     # Log the generated Excel file
@@ -870,6 +870,6 @@ if (Test-Path -Path $OriginalJsonFile) {
     Add-Content -Path $RunLogFile -Value $LogEntry
     
 } else {
-    Write-Host "❌ JSON file not found. Cannot generate Excel report." -ForegroundColor Red
+    Write-Host "[ERROR] JSON file not found. Cannot generate Excel report." -ForegroundColor Red
     Write-Host "   Expected JSON file: $OriginalJsonFile" -ForegroundColor Gray
 }

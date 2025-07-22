@@ -88,7 +88,7 @@ function Test-PurviewCompliance {
             AssessmentDate = Get-Date
         }
         
-        Write-Host "✅ Assessment completed successfully" -ForegroundColor Green
+        Write-Host "[SUCCESS] Assessment completed successfully" -ForegroundColor Green
         Write-Host "  Total Controls: $TotalControls" -ForegroundColor Gray
         Write-Host "  Passing: $PassingControls" -ForegroundColor Green
         Write-Host "  Failing: $FailingControls" -ForegroundColor Red
@@ -222,11 +222,11 @@ function Test-PurviewCompliance {
                 
                 $DetailedResults | Export-Excel @ExcelParams -WorksheetName "Detailed Results"
                 
-                Write-Host "✅ Excel report generated: $ExcelReportPath" -ForegroundColor Green
+                Write-Host "[SUCCESS] Excel report generated: $ExcelReportPath" -ForegroundColor Green
                 $AssessmentResults.ExcelReportPath = $ExcelReportPath
                 
             } catch {
-                Write-Host "⚠️ Excel generation failed: $($_.Exception.Message)" -ForegroundColor Yellow
+                Write-Host "[WARNING] Excel generation failed: $($_.Exception.Message)" -ForegroundColor Yellow
                 Write-Host "  CSV results are available at: $ResultsPath" -ForegroundColor Gray
             }
         }
@@ -234,7 +234,7 @@ function Test-PurviewCompliance {
         return $AssessmentResults
         
     } catch {
-        Write-Host "❌ Assessment failed: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "[ERROR] Assessment failed: $($_.Exception.Message)" -ForegroundColor Red
         throw
     }
 }
