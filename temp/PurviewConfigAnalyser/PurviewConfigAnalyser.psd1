@@ -1,7 +1,7 @@
 @{
     # Module manifest for PurviewConfigAnalyser
     RootModule = 'PurviewConfigAnalyser.psm1'
-    ModuleVersion = '1.0.8'
+    ModuleVersion = '1.0.9'
     GUID = '7922a05c-1dac-422d-9720-06bf4421e59b'
     Author = 'Abhijeet Karki'
     CompanyName = 'Individual'
@@ -59,7 +59,15 @@
             ProjectUri = 'https://github.com/karkiabhijeet/PurviewConfigAnalyser'
             IconUri = ''
             ReleaseNotes = @'
-# PurviewConfigAnalyser v1.0.8
+# PurviewConfigAnalyser v1.0.9
+
+## New in v1.0.9 - FINAL OUTPUT PATH FIX
+- [CRITICAL FIX] Fixed data collection script to create output folder within version directory
+- [FIX] Changed Collect-PurviewConfiguration.ps1 path from "../output" to "output"
+- [FIX] Files now created at correct location: .../1.0.9/output/ instead of .../output/
+- [FIX] Perfect alignment between data collection and file lookup paths
+- Complete resolution of version-specific output directory structure
+- Both data creation and lookup now use the same version-isolated paths
 
 ## New in v1.0.8 - VERSION-SPECIFIC OUTPUT DIRECTORIES
 - [CRITICAL FIX] Fixed output directory structure for multiple module versions
