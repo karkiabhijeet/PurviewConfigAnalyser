@@ -1,4 +1,4 @@
-function Invoke-PurviewConfigAnalyser {
+﻿function Invoke-PurviewConfigAnalyser {
     <#
     .SYNOPSIS
         Interactive Microsoft Purview Configuration Analyser - Your gateway to Purview compliance assessment.

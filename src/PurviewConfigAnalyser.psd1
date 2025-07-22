@@ -1,7 +1,7 @@
 @{
     # Module manifest for PurviewConfigAnalyser
     RootModule = 'PurviewConfigAnalyser.psm1'
-    ModuleVersion = '1.0.2'
+    ModuleVersion = '1.0.3'
     GUID = '7922a05c-1dac-422d-9720-06bf4421e59b'
     Author = 'Abhijeet Karki'
     CompanyName = 'Individual'
@@ -55,19 +55,24 @@
             ProjectUri = 'https://github.com/karkiabhijeet/PurviewConfigAnalyser'
             IconUri = ''
             ReleaseNotes = @'
-# PurviewConfigAnalyser v1.0.2
+# PurviewConfigAnalyser v1.0.3
+
+## New in v1.0.3
+- [CRITICAL FIX] Fixed all remaining Unicode quote character issues that caused parser errors
+- [FIX] Replaced smart quotes (U+2018, U+2019, U+201C, U+201D) with standard ASCII quotes
+- [FIX] Fixed "Array index expression missing" errors in string literals
+- [FIX] Fixed "Missing argument in parameter list" errors from malformed quotes
+- Module now imports successfully without any syntax errors - FINAL FIX
 
 ## New in v1.0.2
 - [CRITICAL FIX] Fixed syntax errors that prevented module import in v1.0.1
 - [FIX] Removed remaining Unicode character causing parser errors
 - [FIX] Fixed curly quotes in ReadKey calls that blocked module loading
-- Module now imports and functions correctly
 
 ## New in v1.0.1
 - [COMPATIBILITY] Replaced Unicode emoji icons with text equivalents for better PowerShell compatibility
 - [FIX] Resolves installation hanging issues in various PowerShell environments
 - [IMPROVEMENT] Added comprehensive installation troubleshooting documentation
-- [IMPROVEMENT] Created install.ps1 helper script with progress feedback
 
 ## Features
 - Comprehensive compliance assessment for Microsoft Purview configurations
