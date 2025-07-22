@@ -136,33 +136,36 @@ function Show-MainMenu {
     Write-Host ""
     
     while ($true) {
-        Write-Host "┌─────────────────────────────────────────────────────────────────────────────────┐" -ForegroundColor Cyan
-        Write-Host "│                           MAIN MENU - CHOOSE YOUR ACTION                           │" -ForegroundColor Cyan
-        Write-Host "├─────────────────────────────────────────────────────────────────────────────────┤" -ForegroundColor Cyan
-        Write-Host "│  1. Extract Configuration and Run Tests                                          │" -ForegroundColor White
-        Write-Host "│     -> Connect to your tenant, collect data, then run compliance tests           │" -ForegroundColor Gray
-        Write-Host "│     -> Best for: Complete assessment from start to finish                        │" -ForegroundColor Gray
-        Write-Host "│                                                                                 │" -ForegroundColor Gray
-        Write-Host "│  2. Extract Configuration Only                                                   │" -ForegroundColor White
-        Write-Host "│     -> Connect to your tenant and collect configuration data                     │" -ForegroundColor Gray
-        Write-Host "│     -> Best for: Data collection without immediate testing                       │" -ForegroundColor Gray
-        Write-Host "│                                                                                 │" -ForegroundColor Gray
-        Write-Host "│  3. Run Validation Tests Only                                                    │" -ForegroundColor White
-        Write-Host "│     -> Use existing data to run compliance tests                                 │" -ForegroundColor Gray
-        Write-Host "│     -> Best for: Testing against previously collected data                       │" -ForegroundColor Gray
-        Write-Host "│                                                                                 │" -ForegroundColor Gray
-        Write-Host "│  4. Create Custom Configuration                                                  │" -ForegroundColor White
-        Write-Host "│     -> Build your own control book for organization-specific requirements        │" -ForegroundColor Gray
-        Write-Host "│     -> Best for: Custom compliance frameworks                                    │" -ForegroundColor Gray
-        Write-Host "│                                                                                 │" -ForegroundColor Gray
-        Write-Host "│  5. Exit                                                                        │" -ForegroundColor White
-        Write-Host "│     -> Close the application                                                    │" -ForegroundColor Gray
-        Write-Host "└─────────────────────────────────────────────────────────────────────────────────┘" -ForegroundColor Cyan
+        Write-Host "+-----------------------------------------------------------------------------+" -ForegroundColor Cyan
+        Write-Host "                         MAIN MENU - CHOOSE YOUR ACTION                     " -ForegroundColor Cyan
+        Write-Host "+-----------------------------------------------------------------------------+" -ForegroundColor Cyan
+        Write-Host "  1. Extract Configuration and Run Tests                                    " -ForegroundColor White
+        Write-Host "     -> Connect to your tenant, collect data, then run compliance tests   " -ForegroundColor Gray
+        Write-Host "     -> Best for: Complete assessment from start to finish                " -ForegroundColor Gray
+        Write-Host "                                                                           " -ForegroundColor Gray
+        Write-Host "  2. Extract Configuration Only                                            " -ForegroundColor White
+        Write-Host "     -> Connect to your tenant and collect configuration data             " -ForegroundColor Gray
+        Write-Host "     -> Best for: Data collection without immediate testing               " -ForegroundColor Gray
+        Write-Host "                                                                           " -ForegroundColor Gray
+        Write-Host "  3. Run Validation Tests Only                                             " -ForegroundColor White
+        Write-Host "     -> Use existing data to run compliance tests                         " -ForegroundColor Gray
+        Write-Host "     -> Best for: Testing against previously collected data               " -ForegroundColor Gray
+        Write-Host "                                                                           " -ForegroundColor Gray
+        Write-Host "  4. Exit                                                                  " -ForegroundColor White
+        Write-Host "     -> Close the application                                              " -ForegroundColor Gray
+        Write-Host "+-----------------------------------------------------------------------------+" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "Tip: If you're new to this tool, start with option 1 for a complete assessment!" -ForegroundColor Yellow
+        Write-Host "📋 CUSTOM CONFIGURATION GUIDE" -ForegroundColor Yellow
+        Write-Host "Need a custom compliance framework? Create your own control books:" -ForegroundColor Gray
+        Write-Host "• Step 1: Create ControlBook_[YourName]_Config.csv with your controls" -ForegroundColor Gray
+        Write-Host "• Step 2: Create ControlBook_Property_[YourName]_Config.csv for properties" -ForegroundColor Gray
+        Write-Host "• Step 3: Place both files in the config/ folder" -ForegroundColor Gray
+        Write-Host "• Step 4: Run Test-PurviewCompliance -Configuration `"[YourName]`"" -ForegroundColor Gray
         Write-Host ""
-        $choice = Read-Host "Please select an option (1-5)"
-        if ($choice -match '^[1-5]$') {
+        Write-Host "Tip: New users should start with option 1. See custom guide above for frameworks!" -ForegroundColor Yellow
+        Write-Host ""
+        $choice = Read-Host "Please select an option (1-4)"
+        if ($choice -match '^[1-4]$') {
             switch ($choice) {
             '1' {
                 Write-Host ""
@@ -200,34 +203,52 @@ function Show-MainMenu {
             }
             '4' {
                 Write-Host ""
-                Write-Host "CREATE CUSTOM CONFIGURATION" -ForegroundColor Yellow
-                Write-Host "===========================" -ForegroundColor Yellow
-                Write-Host "This will:" -ForegroundColor White
-                Write-Host "  1. Launch the Windows Forms GUI to create a custom control book" -ForegroundColor Gray
-                Write-Host "  2. Allow you to define organization-specific controls" -ForegroundColor Gray
-                Write-Host "  3. Save your configuration for future use" -ForegroundColor Gray
+                Write-Host "CUSTOM CONFIGURATION GUIDE" -ForegroundColor Yellow
+                Write-Host "==========================" -ForegroundColor Yellow
                 Write-Host ""
-                # Import the GUI script if not already loaded
-                $guiScript = Join-Path $PSScriptRoot 'Show-PurviewConfigAnalyserGUI.ps1'
-                if (Test-Path $guiScript) {
-                    . $guiScript
-                    Show-PurviewConfigAnalyserGUI
-                } else {
-                    Write-Host "GUI script not found at: $guiScript" -ForegroundColor Red
-                }
+                Write-Host "📋 How to Create Your Own Compliance Framework:" -ForegroundColor Cyan
+                Write-Host ""
+                Write-Host "Step 1: Navigate to Master Control Books" -ForegroundColor White
+                Write-Host "   Location: .\config\MasterControlBooks\" -ForegroundColor Gray
+                Write-Host ""
+                Write-Host "Step 2: Create Your Control Book Files" -ForegroundColor White
+                Write-Host "   Create two new CSV files with your chosen name:" -ForegroundColor Gray
+                Write-Host "   • ControlBook_[YourName]_Config.csv" -ForegroundColor Yellow
+                Write-Host "   • ControlBook_Property_[YourName]_Config.csv" -ForegroundColor Yellow
+                Write-Host ""
+                Write-Host "📝 Examples:" -ForegroundColor Cyan
+                Write-Host "   • ControlBook_Healthcare_Config.csv" -ForegroundColor Gray
+                Write-Host "   • ControlBook_Property_Healthcare_Config.csv" -ForegroundColor Gray
+                Write-Host "   • ControlBook_Banking_Config.csv" -ForegroundColor Gray
+                Write-Host "   • ControlBook_Property_Banking_Config.csv" -ForegroundColor Gray
+                Write-Host ""
+                Write-Host "Step 3: Configure Your Controls" -ForegroundColor White
+                Write-Host "   In the main control book (ControlBook_[Name]_Config.csv):" -ForegroundColor Gray
+                Write-Host "   • Define your control IDs, capabilities, and descriptions" -ForegroundColor Gray
+                Write-Host ""
+                Write-Host "   In the property book (ControlBook_Property_[Name]_Config.csv):" -ForegroundColor Gray
+                Write-Host "   • Set properties to test for each control ID" -ForegroundColor Gray
+                Write-Host "   • Define expected values and requirements" -ForegroundColor Gray
+                Write-Host ""
+                Write-Host "⚠️  Important: Control IDs must match between both files" -ForegroundColor Red
+                Write-Host ""
+                Write-Host "Step 4: Run Your Custom Assessment" -ForegroundColor White
+                Write-Host "   Test-PurviewCompliance -Configuration `"[YourName]`"" -ForegroundColor Yellow
+                Write-Host ""
+                Write-Host "💡 Pro Tip: Copy existing AUGov files as templates!" -ForegroundColor Green
+                Write-Host ""
             }
-            '5' {
+            '4' {
                 Write-Host ""
                 Write-Host "EXITING APPLICATION" -ForegroundColor Green
                 Write-Host "===================" -ForegroundColor Green
-                Write-Host "Thank you for using the Microsoft Purview Configuration Analyser!" -ForegroundColor Green
-                Write-Host "Your compliance journey continues..." -ForegroundColor Gray
+                Write-Host "Thank you for using Microsoft Purview Configuration Analyser!" -ForegroundColor Cyan
                 Write-Host ""
                 return
             }
         }
         
-            if ($choice -ne '5') {
+            if ($choice -ne '4') {
                 Write-Host ""
                 Write-Host "---------------------------------------------------------------" -ForegroundColor DarkGray
                 Write-Host "Press any key to return to the main menu..." -ForegroundColor Cyan
@@ -237,7 +258,7 @@ function Show-MainMenu {
                 break
             }
         } else {
-            Write-Host "Invalid input. Please enter a number between 1 and 5." -ForegroundColor Red
+            Write-Host "Invalid input. Please enter a number between 1 and 4." -ForegroundColor Red
         }
     }
 }
@@ -303,8 +324,8 @@ function Execute-CollectAndTest {
         if ($selectedConfig) {
             Write-Host "Step 3: Running Validation Tests..." -ForegroundColor Yellow
 
-            # Use the Run-MaturityAssessment.ps1 script (it's in the src folder)
-            $assessmentScript = "$PSScriptRoot\..\Run-MaturityAssessment.ps1"
+            # Use the Run-MaturityAssessment.ps1 script (it's in the src/Scripts folder)
+            $assessmentScript = "$PSScriptRoot\..\Scripts\Run-MaturityAssessment.ps1"
             if (-not (Test-Path $assessmentScript)) {
                 throw "Assessment script not found at: $assessmentScript"
             }
@@ -413,7 +434,7 @@ function Execute-TestOnly {
             Write-Host "Running Validation Tests..." -ForegroundColor Yellow
             
             # Use the Run-MaturityAssessment.ps1 script with SkipDataCollection flag
-            $assessmentScript = "$PSScriptRoot\..\Run-MaturityAssessment.ps1"
+            $assessmentScript = "$PSScriptRoot\..\Scripts\Run-MaturityAssessment.ps1"
             if (-not (Test-Path $assessmentScript)) {
                 throw "Assessment script not found at: $assessmentScript"
             }
@@ -814,7 +835,7 @@ function Execute-CreateCustomConfig {
                 Write-Host "═══════════════════════════════════" -ForegroundColor Cyan
                 
                 # Run the maturity assessment with the new configuration
-                $assessmentScript = "$PSScriptRoot\..\Run-MaturityAssessment.ps1"
+                $assessmentScript = "$PSScriptRoot\..\Scripts\Run-MaturityAssessment.ps1"
                 if (Test-Path $assessmentScript) {
                     & $assessmentScript -ConfigurationName $configName -SkipDataCollection -GenerateExcel
                 } else {

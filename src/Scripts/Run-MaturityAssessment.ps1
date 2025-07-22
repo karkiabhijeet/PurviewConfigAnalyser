@@ -16,12 +16,12 @@ param(
 )
 
 # Import required functions
-. "$PSScriptRoot\Private\Test-ControlBook.ps1"
+. "$PSScriptRoot\..\Private\Test-ControlBook.ps1"
 
 # Define paths based on configuration
-$configBasePath = "$PSScriptRoot\..\config"
-$outputPath = "$PSScriptRoot\..\output"
-$dataCollectionScript = "$PSScriptRoot\Collect-PurviewConfiguration.ps1"
+$configBasePath = "$PSScriptRoot\..\..\config"
+$outputPath = "$PSScriptRoot\..\..\output"
+$dataCollectionScript = "$PSScriptRoot\..\Collect-PurviewConfiguration.ps1"
 
 # Configuration-specific file paths
 $controlConfigPath = "$configBasePath\ControlBook_${ConfigurationName}_Config.csv"
