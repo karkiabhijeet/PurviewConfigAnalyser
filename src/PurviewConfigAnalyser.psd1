@@ -1,7 +1,7 @@
 @{
     # Module manifest for PurviewConfigAnalyser
     RootModule = 'PurviewConfigAnalyser.psm1'
-    ModuleVersion = '1.0.0'
+    ModuleVersion = '1.0.1'
     GUID = '7922a05c-1dac-422d-9720-06bf4421e59b'
     Author = 'Abhijeet Karki'
     CompanyName = 'Individual'
@@ -55,7 +55,13 @@
             ProjectUri = 'https://github.com/karkiabhijeet/PurviewConfigAnalyser'
             IconUri = ''
             ReleaseNotes = @'
-# PurviewConfigAnalyser v1.0.0
+# PurviewConfigAnalyser v1.0.1
+
+## New in v1.0.1
+- [COMPATIBILITY] Replaced Unicode emoji icons with text equivalents for better PowerShell compatibility
+- [FIX] Resolves installation hanging issues in various PowerShell environments
+- [IMPROVEMENT] Added comprehensive installation troubleshooting documentation
+- [IMPROVEMENT] Created install.ps1 helper script with progress feedback
 
 ## Features
 - Comprehensive compliance assessment for Microsoft Purview configurations
@@ -70,6 +76,7 @@
 - Support for compound property paths with >> operator
 - Enhanced DLP rule parsing for nested SubConditions
 - Automated control book validation
+- Universal PowerShell environment compatibility
 
 ## Requirements
 - PowerShell 5.1 or higher
