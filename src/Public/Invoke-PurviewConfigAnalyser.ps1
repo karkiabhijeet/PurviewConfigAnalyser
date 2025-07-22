@@ -631,7 +631,7 @@ function Show-ValidationConfigurationMenu {
                 Write-Host "[SUCCESS] Selected configuration: $selectedConfig" -ForegroundColor Green
                 return $selectedConfig
             } elseif ($choiceNum -eq $optionNumber) {
-                Write-Host "🔙 Returning to main menu..." -ForegroundColor Gray
+                Write-Host "[BACK] Returning to main menu..." -ForegroundColor Gray
                 return 'BackToMainMenu'
             }
         }
