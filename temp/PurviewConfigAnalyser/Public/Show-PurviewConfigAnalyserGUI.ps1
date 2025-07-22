@@ -2,9 +2,9 @@
 function Show-PurviewConfigAnalyserGUI {
     [CmdletBinding()]
     param(
-        [string]$MasterControlPath = (Join-Path $PSScriptRoot "..\..\config\MasterControlBooks\ControlBook_Reference.csv"),
-        [string]$MasterPropertyPath = (Join-Path $PSScriptRoot "..\..\config\MasterControlBooks\ControlBook_Property_Reference.csv"),
-        [string]$OutputPath = (Join-Path $PSScriptRoot "..\..\config")
+        [string]$MasterControlPath = (Join-Path $PSScriptRoot "..\config\MasterControlBooks\ControlBook_Reference.csv"),
+        [string]$MasterPropertyPath = (Join-Path $PSScriptRoot "..\config\MasterControlBooks\ControlBook_Property_Reference.csv"),
+        [string]$OutputPath = (Join-Path $PSScriptRoot "..\config")
     )
     try {
         Add-Type -AssemblyName System.Windows.Forms

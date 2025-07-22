@@ -298,8 +298,8 @@ function Execute-CollectAndTest {
         & $dataCollectionScript
 
         # Get the latest OptimizedReport JSON file  
-        $configBasePath = "$PSScriptRoot\..\..\config"
-        $outputBasePath = "$PSScriptRoot\..\..\output"
+        $configBasePath = "$PSScriptRoot\..\config"
+        $outputBasePath = "$PSScriptRoot\..\output"
 
         $optimizedReportPath = Get-LatestOptimizedReport -RunLogPath "$outputBasePath\file_runlog.txt" -OutputPath $outputBasePath
 
@@ -574,7 +574,7 @@ function Show-ValidationConfigurationMenu {
     Write-Host ""
     
     # Get available configurations
-    $configBasePath = "$PSScriptRoot\..\..\config"
+    $configBasePath = "$PSScriptRoot\..\config"
     $availableConfigs = @()
     
     # Look for available control book configurations (ignoring MasterControlBooks folder)
@@ -680,7 +680,7 @@ function Execute-CreateCustomConfig {
     
     try {
         # Load reference files
-        $referenceBasePath = "$PSScriptRoot\..\..\config\MasterControlBooks"
+        $referenceBasePath = "$PSScriptRoot\..\config\MasterControlBooks"
         $controlBookReference = Import-Csv "$referenceBasePath\ControlBook_Reference.csv"
         $propertyReference = Import-Csv "$referenceBasePath\ControlBook_Property_Reference.csv"
         
@@ -697,7 +697,7 @@ function Execute-CreateCustomConfig {
                 Write-Host "[ERROR] Configuration name can only contain letters, numbers, and underscores. Please try again." -ForegroundColor Red
             } else {
                 # Check if configuration already exists
-                $configPath = "$PSScriptRoot\..\..\config\ControlBook_${configName}_Config.csv"
+                $configPath = "$PSScriptRoot\..\config\ControlBook_${configName}_Config.csv"
                 if (Test-Path $configPath) {
                     $overwrite = Read-Host ("Configuration '{0}' already exists. Overwrite? (Y/N)" -f $configName)
                     if ($overwrite -match '^[Yy]') {

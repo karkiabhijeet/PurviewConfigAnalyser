@@ -1,7 +1,7 @@
 @{
     # Module manifest for PurviewConfigAnalyser
     RootModule = 'PurviewConfigAnalyser.psm1'
-    ModuleVersion = '1.0.4'
+    ModuleVersion = '1.0.5'
     GUID = '7922a05c-1dac-422d-9720-06bf4421e59b'
     Author = 'Abhijeet Karki'
     CompanyName = 'Individual'
@@ -59,7 +59,15 @@
             ProjectUri = 'https://github.com/karkiabhijeet/PurviewConfigAnalyser'
             IconUri = ''
             ReleaseNotes = @'
-# PurviewConfigAnalyser v1.0.4
+# PurviewConfigAnalyser v1.0.5
+
+## New in v1.0.5 - CRITICAL PATH FIX
+- [CRITICAL FIX] Fixed config file path resolution for installed modules
+- [FIX] Corrected PSScriptRoot path calculations from "../../config" to "../config"
+- [FIX] Fixed config lookup in Invoke-PurviewConfigAnalyser, Test-PurviewCompliance, and all scripts
+- [FIX] Module now properly finds config files at correct installed location
+- [FIX] Resolves "Cannot find path config" error in PowerShell Gallery installations
+- Module paths now work correctly for both development and installed environments
 
 ## New in v1.0.4 - CONFIG FILES INCLUDED
 - [CRITICAL FIX] Added missing config files to PowerShell Gallery package
@@ -75,16 +83,6 @@
 - [FIX] Fixed "Array index expression missing" errors in string literals
 - [FIX] Fixed "Missing argument in parameter list" errors from malformed quotes
 - Module now imports successfully without any syntax errors - FINAL FIX
-
-## New in v1.0.2
-- [CRITICAL FIX] Fixed syntax errors that prevented module import in v1.0.1
-- [FIX] Removed remaining Unicode character causing parser errors
-- [FIX] Fixed curly quotes in ReadKey calls that blocked module loading
-
-## New in v1.0.1
-- [COMPATIBILITY] Replaced Unicode emoji icons with text equivalents for better PowerShell compatibility
-- [FIX] Resolves installation hanging issues in various PowerShell environments
-- [IMPROVEMENT] Added comprehensive installation troubleshooting documentation
 
 ## Features
 - Comprehensive compliance assessment for Microsoft Purview configurations

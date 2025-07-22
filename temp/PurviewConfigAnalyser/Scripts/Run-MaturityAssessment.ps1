@@ -19,8 +19,8 @@ param(
 . "$PSScriptRoot\..\Private\Test-ControlBook.ps1"
 
 # Define paths based on configuration
-$configBasePath = "$PSScriptRoot\..\..\config"
-$outputPath = "$PSScriptRoot\..\..\output"
+$configBasePath = "$PSScriptRoot\..\config"
+$outputPath = "$PSScriptRoot\..\output"
 $dataCollectionScript = "$PSScriptRoot\..\Collect-PurviewConfiguration.ps1"
 
 # Configuration-specific file paths
