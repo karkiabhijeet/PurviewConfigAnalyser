@@ -946,29 +946,11 @@ function Test-GetAutoSensitivityLabelPolicyProperty {
     $propertyName = $PropertyParts[1].Trim()
     $autoPolicies = $OptimizedReport.GetAutoSensitivityLabelPolicy
     
-    # For Sensitivity Auto-labelling controls, filter to only taxonomy-related policies
-    $taxonomyControl = Get-TaxonomyLabels -AllLabels $AllLabels -Result $Result
-    $taxonomyLabelNames = $taxonomyControl.RequiredLabels
-    $taxonomyRelatedPolicies = @()
-    $outOfScopePolicies = @()
-    
-    foreach ($policy in $autoPolicies) {
-        $isTaxonomyRelated = $false
-        if ($policy.LabelDisplayName) {
-            foreach ($taxonomyLabel in $taxonomyLabelNames) {
-                if ($policy.LabelDisplayName -like "*$taxonomyLabel*") {
-                    $isTaxonomyRelated = $true
-                    break
-                }
-            }
-        }
-        
-        if ($isTaxonomyRelated) {
-            $taxonomyRelatedPolicies += $policy
-        } else {
-            $outOfScopePolicies += $policy
-        }
-    }
+    # For Sensitivity Auto-labelling controls, use all policies (not just taxonomy-filtered)
+    # This makes the control more universally applicable across different label taxonomies
+    $allPolicies = $OptimizedReport.GetAutoSensitivityLabelPolicy
+    $taxonomyRelatedPolicies = $allPolicies  # Use all policies instead of filtering
+    $outOfScopePolicies = @()  # No out-of-scope since we're including all
     
     switch ($propertyName) {
         "Mode" {
@@ -977,15 +959,15 @@ function Test-GetAutoSensitivityLabelPolicyProperty {
             
             if ($enabledPolicies.Count -gt 0) {
                 $Result.Pass = $true
-                $comments = "Found $($enabledPolicies.Count) taxonomy auto-labeling policies with Mode = ${ExpectedValue}"
-                if ($outOfScopeEnabledPolicies.Count -gt 0) {
-                    $comments += ". Out-of-scope policies also enabled: $($outOfScopeEnabledPolicies.Count)"
-                }
+                $comments = "Found $($enabledPolicies.Count) auto-labeling policies with Mode = ${ExpectedValue}"
                 $Result.Comments = $comments
             } else {
-                $comments = "No taxonomy auto-labeling policies found with Mode = ${ExpectedValue}"
-                if ($outOfScopeEnabledPolicies.Count -gt 0) {
-                    $comments += ". Out-of-scope policies with this mode: $($outOfScopeEnabledPolicies.Count)"
+                $comments = "No auto-labeling policies found with Mode = ${ExpectedValue}"
+                if ($allPolicies.Count -gt 0) {
+                    $otherModes = ($allPolicies | Select-Object -Unique Mode | Where-Object { $_.Mode -ne $ExpectedValue }).Mode -join ', '
+                    if ($otherModes) {
+                        $comments += ". Available modes: $otherModes"
+                    }
                 }
                 $Result.Comments = $comments
             }
@@ -996,15 +978,15 @@ function Test-GetAutoSensitivityLabelPolicyProperty {
             
             if ($typePolicies.Count -gt 0) {
                 $Result.Pass = $true
-                $comments = "Found $($typePolicies.Count) taxonomy policies with Type = ${ExpectedValue}"
-                if ($outOfScopeTypePolicies.Count -gt 0) {
-                    $comments += ". Out-of-scope policies also have this type: $($outOfScopeTypePolicies.Count)"
-                }
+                $comments = "Found $($typePolicies.Count) auto-labeling policies with Type = ${ExpectedValue}"
                 $Result.Comments = $comments
             } else {
-                $comments = "No taxonomy policies found with Type = ${ExpectedValue}"
-                if ($outOfScopeTypePolicies.Count -gt 0) {
-                    $comments += ". Out-of-scope policies with this type: $($outOfScopeTypePolicies.Count)"
+                $comments = "No auto-labeling policies found with Type = ${ExpectedValue}"
+                if ($allPolicies.Count -gt 0) {
+                    $otherTypes = ($allPolicies | Select-Object -Unique Type | Where-Object { $_.Type -ne $ExpectedValue }).Type -join ', '
+                    if ($otherTypes) {
+                        $comments += ". Available types: $otherTypes"
+                    }
                 }
                 $Result.Comments = $comments
             }
@@ -1088,16 +1070,47 @@ function Test-GetAutoSensitivityLabelPolicyProperty {
 function Get-TaxonomyLabels {
     param($AllLabels, $Result)
     
-    # This function dynamically determines the required taxonomy labels from the configuration
-    # It looks for a DisplayName control in the same capability that defines the taxonomy
+    # This function dynamically determines the required taxonomy labels from SL_1.3 configuration
+    # Look for SL_1.3 control in the property configuration file to get the defined taxonomy
     
-    # For now, we'll use the PSPF taxonomy as default, but this could be made more dynamic
-    # by reading from the configuration files to find taxonomy-defining controls
-    $defaultTaxonomy = @("UNOFFICIAL", "OFFICIAL", "OFFICIAL SENSITIVE")
+    $taxonomyLabels = @()
+    $source = "Default"
+    
+    # Try to determine the property config path from the current execution context
+    # Look for config files in common locations
+    $possiblePaths = @(
+        "config\ControlBook_Property_AUGov_Config.csv",
+        "..\config\ControlBook_Property_AUGov_Config.csv",
+        "..\..\config\ControlBook_Property_AUGov_Config.csv"
+    )
+    
+    foreach ($path in $possiblePaths) {
+        $fullPath = Join-Path $PWD $path
+        if (Test-Path $fullPath) {
+            try {
+                $properties = Import-Csv -Path $fullPath
+                $sl13Control = $properties | Where-Object { $_.ControlID -eq "SL_1.3" -and $_.Properties -eq "GetLabel > DisplayName" }
+                if ($sl13Control -and $sl13Control.DefaultValue) {
+                    # Parse the comma-separated taxonomy labels from SL_1.3
+                    $taxonomyLabels = $sl13Control.DefaultValue -replace '"', '' -split ',' | ForEach-Object { $_.Trim() }
+                    $source = "SL_1.3 from $fullPath"
+                    break
+                }
+            } catch {
+                # Continue to next path if this one fails
+            }
+        }
+    }
+    
+    # Final fallback to hardcoded AUGov taxonomy if SL_1.3 cannot be found
+    if ($taxonomyLabels.Count -eq 0) {
+        $taxonomyLabels = @("UNOFFICIAL", "OFFICIAL", "OFFICIAL SENSITIVE")
+        $source = "Hardcoded AUGov Taxonomy (Fallback)"
+    }
     
     return @{
-        RequiredLabels = $defaultTaxonomy
-        Source = "Default PSPF Taxonomy"
+        RequiredLabels = $taxonomyLabels
+        Source = $source
     }
 }
 
