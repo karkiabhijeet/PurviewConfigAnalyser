@@ -72,18 +72,18 @@
             ReleaseNotes = @'
 # PurviewConfigAnalyser v2.0.1 - CRITICAL TAXONOMY FIX
 
-## 🚨 CRITICAL HOTFIX - Auto-labeling Policy Compatibility 
+## CRITICAL HOTFIX - Auto-labeling Policy Compatibility 
 - [CRITICAL] Fixed SAL_2.4 test failure caused by hardcoded PSPF taxonomy 
 - [UNIVERSAL] Get-TaxonomyLabels now dynamically reads SL_1.3 from configuration
 - [COMPATIBILITY] Auto-labeling tests now work with any tenant taxonomy
 - [INTELLIGENT] Falls back to SL_1.3 defined labels instead of hardcoded values
 
 ## What This Fixes
-- ✅ SAL_2.4 "No taxonomy auto-labeling policies found" error resolved
-- ✅ Dynamic taxonomy detection from SL_1.3 configuration
-- ✅ Perfect compatibility with Australian Government PSPF taxonomy
-- ✅ Support for custom taxonomies defined in control books
-- ✅ Eliminates hardcoded "UNOFFICIAL, OFFICIAL, OFFICIAL SENSITIVE" assumptions
+- SAL_2.4 "No taxonomy auto-labeling policies found" error resolved
+- Dynamic taxonomy detection from SL_1.3 configuration
+- Perfect compatibility with Australian Government PSPF taxonomy
+- Support for custom taxonomies defined in control books
+- Eliminates hardcoded "UNOFFICIAL, OFFICIAL, OFFICIAL SENSITIVE" assumptions
 
 ## Technical Details
 The Get-TaxonomyLabels function now:
