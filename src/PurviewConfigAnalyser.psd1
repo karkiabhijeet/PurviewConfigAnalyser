@@ -5,7 +5,7 @@
     GUID = '7922a05c-1dac-422d-9720-06bf4421e59b'
     Author = 'Abhijeet Karki'
     CompanyName = 'Individual'
-    Copyright = '© 2025 Abhijeet Karki. All rights reserved.'
+    Copyright = '(c) 2025 Abhijeet Karki. All rights reserved.'
     Description = 'Microsoft Purview Configuration Analyser - Automated compliance assessment for Sensitivity Labels, Auto-labeling, and Data Loss Prevention policies with comprehensive reporting capabilities.'
     
     # Minimum version of PowerShell required
