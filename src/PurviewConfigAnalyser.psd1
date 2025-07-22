@@ -1,7 +1,7 @@
 @{
     # Module manifest for PurviewConfigAnalyser
     RootModule = 'PurviewConfigAnalyser.psm1'
-    ModuleVersion = '1.0.5'
+    ModuleVersion = '1.0.6'
     GUID = '7922a05c-1dac-422d-9720-06bf4421e59b'
     Author = 'Abhijeet Karki'
     CompanyName = 'Individual'
@@ -59,7 +59,16 @@
             ProjectUri = 'https://github.com/karkiabhijeet/PurviewConfigAnalyser'
             IconUri = ''
             ReleaseNotes = @'
-# PurviewConfigAnalyser v1.0.5
+# PurviewConfigAnalyser v1.0.6
+
+## New in v1.0.6 - USER-FRIENDLY VALIDATION
+- [CRITICAL FIX] Fixed validation workflow for installed modules without output directory
+- [IMPROVEMENT] Interactive prompt for OptimizedReport JSON file when validation tests are run
+- [UX] Clear instructions on how to obtain OptimizedReport JSON files
+- [FIX] Graceful handling of missing output directory in Run-MaturityAssessment script
+- [FIX] Added automatic output directory creation when needed
+- [FIX] Better error handling for file path validation
+- Validation tests now work seamlessly for installed modules
 
 ## New in v1.0.5 - CRITICAL PATH FIX
 - [CRITICAL FIX] Fixed config file path resolution for installed modules

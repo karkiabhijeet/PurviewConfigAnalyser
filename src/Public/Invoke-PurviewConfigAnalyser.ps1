@@ -433,15 +433,63 @@ function Execute-TestOnly {
         if ($selectedConfig) {
             Write-Host "Running Validation Tests..." -ForegroundColor Yellow
             
-            # Use the Run-MaturityAssessment.ps1 script with SkipDataCollection flag
-            $assessmentScript = "$PSScriptRoot\..\Scripts\Run-MaturityAssessment.ps1"
-            if (-not (Test-Path $assessmentScript)) {
-                throw "Assessment script not found at: $assessmentScript"
+            # Check if we're in an installed module environment (no output directory)
+            $outputBasePath = "$PSScriptRoot\..\output"
+            if (-not (Test-Path $outputBasePath)) {
+                # We're in an installed module - need user to provide JSON file
+                Write-Host ""
+                Write-Host "[INFO] For validation tests, you need an OptimizedReport JSON file from Microsoft Purview." -ForegroundColor Cyan
+                Write-Host "You can obtain this by:" -ForegroundColor Gray
+                Write-Host "  1. Running data collection first (Option 1 from main menu)" -ForegroundColor Gray
+                Write-Host "  2. Or providing an existing OptimizedReport JSON file" -ForegroundColor Gray
+                Write-Host ""
+                Write-Host "Enter the full path to your OptimizedReport JSON file:" -ForegroundColor Yellow
+                Write-Host "(or press Enter to return to main menu)" -ForegroundColor Gray
+                
+                $jsonPath = Read-Host
+                if ([string]::IsNullOrWhiteSpace($jsonPath)) {
+                    Show-MainMenu -OutputPath $OutputPath -UserPrincipalName $UserPrincipalName
+                    return
+                }
+                
+                if (-not (Test-Path $jsonPath)) {
+                    Write-Host "[ERROR] File not found: $jsonPath" -ForegroundColor Red
+                    Write-Host "Press any key to return to main menu..." -ForegroundColor Yellow
+                    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                    Show-MainMenu -OutputPath $OutputPath -UserPrincipalName $UserPrincipalName
+                    return
+                }
+                
+                if (-not ($jsonPath -like "*OptimizedReport*.json")) {
+                    Write-Host "[WARNING] File doesn't appear to be an OptimizedReport JSON file" -ForegroundColor Yellow
+                    Write-Host "Continue anyway? (y/n): " -ForegroundColor Yellow -NoNewline
+                    $continue = Read-Host
+                    if ($continue -ne 'y' -and $continue -ne 'Y') {
+                        Show-MainMenu -OutputPath $OutputPath -UserPrincipalName $UserPrincipalName
+                        return
+                    }
+                }
+                
+                # Use Test-PurviewCompliance directly with the provided file
+                try {
+                    Write-Host "Running validation against: $(Split-Path -Leaf $jsonPath)" -ForegroundColor Gray
+                    Test-PurviewCompliance -OptimizedReportPath $jsonPath -Configuration $selectedConfig -GenerateExcel -OutputPath $OutputPath
+                    Write-Host "[SUCCESS] Validation tests completed successfully!" -ForegroundColor Green
+                }
+                catch {
+                    Write-Host "[ERROR] Validation failed: $($_.Exception.Message)" -ForegroundColor Red
+                }
             }
-            
-            & $assessmentScript -ConfigurationName $selectedConfig -SkipDataCollection -GenerateExcel
-            
-            Write-Host "[SUCCESS] Validation tests completed successfully!" -ForegroundColor Green
+            else {
+                # Development environment - use the script approach
+                $assessmentScript = "$PSScriptRoot\..\Scripts\Run-MaturityAssessment.ps1"
+                if (-not (Test-Path $assessmentScript)) {
+                    throw "Assessment script not found at: $assessmentScript"
+                }
+                
+                & $assessmentScript -ConfigurationName $selectedConfig -SkipDataCollection -GenerateExcel
+                Write-Host "[SUCCESS] Validation tests completed successfully!" -ForegroundColor Green
+            }
         }
     }
     catch {

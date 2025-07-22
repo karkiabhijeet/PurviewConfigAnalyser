@@ -23,6 +23,11 @@ $configBasePath = "$PSScriptRoot\..\config"
 $outputPath = "$PSScriptRoot\..\output"
 $dataCollectionScript = "$PSScriptRoot\..\Collect-PurviewConfiguration.ps1"
 
+# Create output directory if it doesn't exist
+if (-not (Test-Path $outputPath)) {
+    New-Item -Path $outputPath -ItemType Directory -Force | Out-Null
+}
+
 # Configuration-specific file paths
 $controlConfigPath = "$configBasePath\ControlBook_${ConfigurationName}_Config.csv"
 $propertyConfigPath = "$configBasePath\ControlBook_Property_${ConfigurationName}_Config.csv"
@@ -51,10 +56,12 @@ function Get-LatestOptimizedReport {
         }
     }
     
-    # Fallback: search for OptimizedReport*.json files directly
-    $jsonFiles = Get-ChildItem -Path $OutputPath -Filter "OptimizedReport*.json" | Sort-Object LastWriteTime -Descending
-    if ($jsonFiles) {
-        return $jsonFiles[0].FullName
+    # Fallback: search for OptimizedReport*.json files directly  
+    if (Test-Path $OutputPath) {
+        $jsonFiles = Get-ChildItem -Path $OutputPath -Filter "OptimizedReport*.json" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending
+        if ($jsonFiles) {
+            return $jsonFiles[0].FullName
+        }
     }
     
     return $null
